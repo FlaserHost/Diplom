@@ -9,11 +9,24 @@
         die("Ошибка подключения к базе данных: " . $mysqli->connect_error);
     }
 
-    $query = "SELECT * FROM categories";
-    $result = $mysqli->query($query);
+    $categoriesQuery = "SELECT * FROM categories";
+    $productsQuery = "SELECT *, categories.category AS category FROM products
+                      JOIN categories ON products.id_category = categories.id_category
+                      ORDER BY products.id_category ASC";
 
-    if ($result) {
-        $categories = $result->fetch_all(MYSQLI_ASSOC);
+    $categoriesResult = $mysqli->query($categoriesQuery);
+    $productsResult = $mysqli->query($productsQuery);
+
+    $showcaseAssoc = [];
+
+    if ($categoriesResult && $productsResult) {
+        $categories = $categoriesResult->fetch_all(MYSQLI_ASSOC);
+        $products = $productsResult->fetch_all(MYSQLI_ASSOC);
+
+        foreach ($products as $product) {
+            $category = $product['category'];
+            $showcaseAssoc[$category][] = $product;
+        }
     } else {
         die("Ошибка выполнения SQL-запроса: " . $mysqli->error);
     }
@@ -24,11 +37,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Онлайн гастроном</title>
+    <title>Fresh Market</title>
     <link rel="shortcut icon" href="src/img/header/logo.png">
     <link rel="stylesheet" href="src/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 </head>
 <body>
     <header class="page-header">
@@ -81,17 +96,17 @@
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
                         <figure>
-                            <img src="src/img/main/slider/slide-1.jpg" alt="slide-1">
+                            <img src="src/img/main/slider/slide-1.webp" alt="slide-1">
                         </figure>
                     </div>
                     <div class="swiper-slide">
                         <figure>
-                            <img src="src/img/main/slider/slide-2.jpg" alt="slide-2">
+                            <img src="src/img/main/slider/slide-2.webp" alt="slide-2">
                         </figure>
                     </div>
                     <div class="swiper-slide">
                         <figure>
-                            <img src="src/img/main/slider/slide-3.jpg" alt="slide-3">
+                            <img src="src/img/main/slider/slide-3.webp" alt="slide-3">
                         </figure>
                     </div>
                 </div>
@@ -112,12 +127,48 @@
                     </a>
                 <?php endforeach ?>
             </nav>
+            <div class="showcase__items">
+                <?php foreach ($showcaseAssoc as $key => $value): ?>
+                    <div class="category-block">
+                        <div class="category-title">
+                            <h2><?= $key ?></h2>
+                        </div>
+                        <div class="category-products">
+                            <?php foreach ($value as $product): ?>
+                                <article class="category-product">
+                                    <a href="<?= $product['product_photo'] ?>" data-fancybox="image">
+                                        <figure class="product-photo">
+                                            <img src="<?= $product['product_photo'] ?>" alt="<?= $product['product_name'] ?>">
+                                        </figure>
+                                    </a>
+
+                                    <div class="product-info">
+                                        <div class="product-header">
+                                            <h3 title="<?= $product['product_name'] ?>"><?= $product['product_name'] ?></h3>
+                                            <span><?= $product['product_weight'] * 1000 ?> г</span>
+                                        </div>
+                                        <div class="product-composition">
+                                            Состав: <p><?= $product['product_composition'] ?></p>
+                                        </div>
+                                        <div class="product-footer">
+                                            <span><?= $product['product_price'] ?> ₽</span>
+                                            <button class="add-to-cart-btn" id="add-to-cart-btn">В корзину</button>
+                                        </div>
+                                    </div>
+                                </article>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
+                <?php endforeach ?>
+            </div>
         </section>
     </main>
     <script src="src/js/main.js"></script>
     <script src="src/js/slider.js"></script>
+    <script src="src/js/fancybox.js"></script>
 </body>
 </html>
 <?php
-    $result->free();
+    $categoriesResult->free();
+    $productsResult->free();
     $mysqli->close();
