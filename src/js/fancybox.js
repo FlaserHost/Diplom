@@ -1,1 +1,9 @@
-Fancybox.bind("[data-fancybox]", {});
+Fancybox.bind("[data-fancybox]", {
+    hideScrollbar: false,
+    Carousel: {
+        Panzoom: {
+            touch: false,
+        },
+    },
+    contentClick: 'close',
+});

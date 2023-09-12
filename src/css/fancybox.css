@@ -1,0 +1,9 @@
+.fancybox__toolbar.is-absolute,
+.fancybox__nav,
+.fancybox__footer {
+    display: none;
+}
+
+.fancybox__content > img {
+    cursor: zoom-out;
+}
