@@ -58,9 +58,9 @@
                     <input type="hidden" id="search-category-changed" name="search-category-changed" value="Все категории">
                     <div class="categories-list-wrapper">
                         <ul class="categories-list">
-                            <li class="category" id="category-0">Все категории</li>
+                            <li class="search-category" id="category-0">Все категории</li>
                             <?php foreach ($categories as $category): ?>
-                                <li class="category" id="category-<?= $category['id_category'] ?>"><?= $category['category'] ?></li>
+                                <li class="search-category" id="search-category-<?= $category['id_category'] ?>"><?= $category['category'] ?></li>
                             <?php endforeach ?>
                         </ul>
                     </div>
@@ -129,8 +129,10 @@
                 <?php endforeach ?>
             </nav>
             <div class="showcase__items">
+                <?php $categoryNumber = 0 ?>
                 <?php foreach ($showcaseAssoc as $key => $value): ?>
-                    <div class="category-block">
+                <?php ++$categoryNumber ?>
+                    <div class="category-block" id="category-<?= $categoryNumber ?>">
                         <div class="category-title">
                             <h2><?= $key ?></h2>
                         </div>
@@ -142,14 +144,18 @@
                                             <img src="<?= $product['product_photo'] ?>" alt="<?= $product['product_name'] ?>">
                                         </figure>
                                     </a>
-
                                     <div class="product-info">
                                         <div class="product-header">
                                             <h3 title="<?= $product['product_name'] ?>"><?= $product['product_name'] ?></h3>
-                                            <span><?= $product['product_weight'] * 1000 ?> г</span>
+                                            <span><?= $product['product_weight'] ?> г</span>
                                         </div>
                                         <div class="product-composition">
                                             Состав: <p><?= $product['product_composition'] ?></p>
+                                        </div>
+                                        <div class="product-rating">
+                                            <?php $width = $product['product_rating'] / 0.05 ?>
+                                            <div class="current-product-rating" style="width: <?= $width ?>%"></div>
+                                            <span class="rating"><?= $product['product_rating'] ?></span>
                                         </div>
                                         <div class="product-footer">
                                             <span><?= $product['product_price'] ?> ₽</span>

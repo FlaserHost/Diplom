@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // header
     const categoryToSearch = document.getElementById('search-in-category');
     const listWrapper = document.querySelector('.page-header .categories-list-wrapper');
-    const headerCategories = document.querySelectorAll('.category');
+    const headerCategories = document.querySelectorAll('.search-category');
     const selectedCategory = document.getElementById('selected-category');
     const hiddenSelectedCategory = document.getElementById('search-category-changed');
 
