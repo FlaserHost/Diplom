@@ -120,7 +120,7 @@
             <nav class="items-categories">
                 <?php foreach ($categories as $category): ?>
                     <a
-                            class="category"
+                            class="nav-category"
                             id="items-category-<?= $category['id_category'] ?>"
                             href="#category-<?= $category['id_category'] ?>"
                     >
@@ -138,7 +138,7 @@
                         </div>
                         <div class="category-products">
                             <?php foreach ($value as $product): ?>
-                                <article class="category-product">
+                                <article class="category-product" id="product-<?= $product['id_product'] ?>" data-product-id="<?= $product['id_product'] ?>">
                                     <a href="<?= $product['product_photo'] ?>" data-fancybox="image">
                                         <figure class="product-photo">
                                             <img src="<?= $product['product_photo'] ?>" alt="<?= $product['product_name'] ?>">
@@ -158,8 +158,8 @@
                                             <span class="rating"><?= $product['product_rating'] ?></span>
                                         </div>
                                         <div class="product-footer">
-                                            <span><?= $product['product_price'] ?> ₽</span>
-                                            <button class="add-to-cart-btn" id="add-to-cart-btn">В корзину</button>
+                                            <span class="product-price" data-price="<?= $product['product_price'] ?>"><?= $product['product_price'] ?> ₽</span>
+                                            <button class="add-to-cart-btn" id="add-to-cart-btn" type="button">В корзину</button>
                                         </div>
                                     </div>
                                 </article>
