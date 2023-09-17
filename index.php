@@ -47,6 +47,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
 </head>
 <body>
+    <section class="modal">
+        <div class="modal-block"></div>
+    </section>
     <header class="page-header">
         <div class="page-header__header-wrapper">
             <figure class="site-logo">
@@ -132,7 +135,7 @@
                 <?php $categoryNumber = 0 ?>
                 <?php foreach ($showcaseAssoc as $key => $value): ?>
                 <?php ++$categoryNumber ?>
-                    <div class="category-block" id="category-<?= $categoryNumber ?>">
+                    <section class="category-block" id="category-<?= $categoryNumber ?>">
                         <div class="category-title">
                             <h2><?= $key ?></h2>
                         </div>
@@ -159,17 +162,19 @@
                                         </div>
                                         <div class="product-footer">
                                             <span class="product-price" data-price="<?= $product['product_price'] ?>"><?= $product['product_price'] ?> ₽</span>
-                                            <button class="add-to-cart-btn" id="add-to-cart-btn" type="button">В корзину</button>
+                                            <button class="add-to-cart-btn show" id="add-to-cart-btn" type="button">В корзину</button>
+                                            <span class="added-notice">Товар уже в корзине</span>
                                         </div>
                                     </div>
                                 </article>
                             <?php endforeach ?>
                         </div>
-                    </div>
+                    </section>
                 <?php endforeach ?>
             </div>
         </section>
     </main>
+    <script src="src/js/components.js"></script>
     <script src="src/js/main.js"></script>
     <script src="src/js/slider.js"></script>
     <script src="src/js/fancybox.js"></script>
