@@ -79,17 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const noActive = () => navLinks.forEach(link => link.classList.remove("active"));
+
     const categoryDetector = () => {
         const pos = window.scrollY;
 
-        allCategoriesSections.forEach((section, index) => {
-            const rect = section.offsetTop;
+        if (pos !== 0) {
+            allCategoriesSections.forEach((section, index) => {
+                const rect = section.offsetTop;
 
-            if (rect - 200 <= pos) {
-                navLinks.forEach(link => link.classList.remove("active"));
-                navLinks[index].classList.add("active");
-            }
-        });
+                if (rect - 200 <= pos) {
+                    noActive();
+                    navLinks[index].classList.add("active");
+                }
+            });
+        } else {
+            noActive();
+        }
     }
 
     document.addEventListener('scroll', categoryDetector);
@@ -139,21 +145,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartBtn = document.getElementById('cart-btn');
     cartBtn.addEventListener('click', e => {
         e.target.classList.remove('flex');
-        modal.classList.add('flex');
         body.style.overflow = 'hidden';
 
         let modalBody;
         let maxWidth;
+        let modalClass;
 
         if (myCart.size !== 0) {
-            modalBody = '';
+            modalClass = 'align-start';
+            maxWidth = 'modal-block-cart';
+
+            modalBody = cartModal(myCart);
         } else {
-            modal.classList.add('align-center');
+            modalClass = 'align-center';
             maxWidth = 'modal-block-empty';
+
             modalBody = emptyCart();
         }
 
+        modal.className = `modal flex ${modalClass}`;
         modalBlock.className = `modal-block ${maxWidth}`;
         modalBlock.insertAdjacentHTML('beforeend', modalBody);
+    });
+
+    modal.addEventListener('click', e => {
+        if (e.target.classList.contains('count-btn')) {
+            const isPlus = e.target.classList.contains('plus');
+            const thisParent = e.target.parentElement;
+            const currentID = +thisParent.dataset.productId;
+
+            const product = myCart.get(currentID);
+            const price = product.product_price;
+            let amount = product.product_amount;
+
+            if (isPlus) {
+                amount++;
+            } else if (amount > 1) {
+                amount--;
+            } else {
+                return false;
+            }
+
+            const newCost = price * amount;
+
+            myCart.set(currentID, {...product, product_amount: amount, product_cost: newCost});
+            save(myCart);
+
+            const countField = thisParent.querySelector('.count-field');
+            const cost = thisParent.nextElementSibling.querySelector('.cost');
+            countField.value = amount;
+            cost.innerText = `${newCost} ₽`;
+        }
     });
 });

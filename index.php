@@ -18,6 +18,7 @@
     $productsResult = $mysqli->query($productsQuery);
 
     $showcaseAssoc = [];
+    $categoriesNumbers = [];
 
     if ($categoriesResult && $productsResult) {
         $categories = $categoriesResult->fetch_all(MYSQLI_ASSOC);
@@ -26,6 +27,7 @@
         foreach ($products as $product) {
             $category = $product['category'];
             $showcaseAssoc[$category][] = $product;
+            $categoriesNumbers[$category] = $product['id_category'];
         }
     } else {
         die("Ошибка выполнения SQL-запроса: " . $mysqli->error);
@@ -48,7 +50,9 @@
 </head>
 <body>
     <section class="modal">
-        <div class="modal-block"></div>
+        <div class="modal-block">
+            <!-- .modal-body -->
+        </div>
     </section>
     <header class="page-header">
         <div class="page-header__header-wrapper">
@@ -132,10 +136,8 @@
                 <?php endforeach ?>
             </nav>
             <div class="showcase__items">
-                <?php $categoryNumber = 0 ?>
                 <?php foreach ($showcaseAssoc as $key => $value): ?>
-                <?php ++$categoryNumber ?>
-                    <section class="category-block" id="category-<?= $categoryNumber ?>">
+                    <section class="category-block" id="category-<?= $categoriesNumbers[$key] ?>">
                         <div class="category-title">
                             <h2><?= $key ?></h2>
                         </div>
