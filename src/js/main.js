@@ -27,8 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         categoryToSearch.classList.remove('opened');
     }
 
-    const save = myCart => localStorage.myCart = JSON.stringify(Array.from(myCart.values()));
-
     // header
     const categoryToSearch = document.getElementById('search-in-category');
     const listWrapper = document.querySelector('.page-header .categories-list-wrapper');
@@ -169,32 +167,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     modal.addEventListener('click', e => {
-        if (e.target.classList.contains('count-btn')) {
-            const isPlus = e.target.classList.contains('plus');
-            const thisParent = e.target.parentElement;
-            const currentID = +thisParent.dataset.productId;
+        const isCounterBtns = e.target.classList.contains('count-btn');
 
-            const product = myCart.get(currentID);
-            const price = product.product_price;
-            let amount = product.product_amount;
+        if (isCounterBtns) {
+            calculation(e, myCart);
+        }
+    });
 
-            if (isPlus) {
-                amount++;
-            } else if (amount > 1) {
-                amount--;
-            } else {
-                return false;
-            }
+    modal.addEventListener('input', e => {
+        const isCounterField = e.target.classList.contains('count-field');
 
-            const newCost = price * amount;
-
-            myCart.set(currentID, {...product, product_amount: amount, product_cost: newCost});
-            save(myCart);
-
-            const countField = thisParent.querySelector('.count-field');
-            const cost = thisParent.nextElementSibling.querySelector('.cost');
-            countField.value = amount;
-            cost.innerText = `${newCost} ₽`;
+        if (isCounterField) {
+            calculation(e, myCart);
         }
     });
 });

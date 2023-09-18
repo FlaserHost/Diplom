@@ -28,9 +28,12 @@ const cartModal = (myCart) => {
             return 'ров';
         }
     }
-    const ending = correctEnding();
 
-    const cartItems = Array.from(myCart.values()).map(item => `<article class="cart-item" id="cart-item-${item.product_id}" data-product-id="${item.product_id}">
+    const ending = correctEnding();
+    const cartValues = Array.from(myCart.values());
+    const totalCost = total(cartValues);
+
+    const cartItems = cartValues.map(item => `<article class="cart-item" id="cart-item-${item.product_id}" data-product-id="${item.product_id}">
                 <figure class="cart-item__photo">
                     <img src="${item.product_photo}" alt="${item.product_name}">
                 </figure>
@@ -57,6 +60,29 @@ const cartModal = (myCart) => {
         </div>
         <div class="cart-items">
             ${cartItems.join('')}
+        </div>
+        <div class="total-cost">
+            <span>Сумма: ${totalCost} ₽</span>
+        </div>
+        <div class="order-data">
+            <div class="order-data-header">
+                <h2 class="modal-title">Оформление заказа</h2>
+            </div>
+            <div class="client-data">
+                <div class="client-data__contact-info">
+                    <h3>1. Контактная информация</h3>
+                    <div class="fields-wrapper">
+                        <div class="field-area">
+                            <label class="modal-label required" for="client-name">Имя</label>
+                            <input class="modal-field client-name" id="client-name" name="firstname" type="text" required>
+                        </div>
+                        <div class="field-area">
+                            <label class="modal-label required" for="client-phone">Телефон</label>
+                            <input class="modal-field client-phone" id="client-phone" name="phone" type="text" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>`;
 }

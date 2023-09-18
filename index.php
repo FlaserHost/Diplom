@@ -176,6 +176,7 @@
             </div>
         </section>
     </main>
+    <script src="src/js/functions.js"></script>
     <script src="src/js/components.js"></script>
     <script src="src/js/main.js"></script>
     <script src="src/js/slider.js"></script>
