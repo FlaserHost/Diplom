@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('resize', categoryDetector);
 
     //main showcase add_to_cart_btn
+    const cartBtnWrapper = document.querySelector('.cart-btn-wrapper');
     const addToCartBtn = document.querySelectorAll('.add-to-cart-btn');
     addToCartBtn.forEach(btn => {
         btn.addEventListener('click', e => {
@@ -133,6 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.classList.remove('show');
             children[1].querySelector('.added-notice').classList.add('show');
             cartItemsAmount.innerText = myCart.size;
+
+            const impulse = pulse();
+            cartBtnWrapper.insertAdjacentElement('afterbegin', impulse);
+
+            setTimeout(() => impulse.remove(), 900);
         });
     });
 
@@ -164,13 +170,78 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.className = `modal flex ${modalClass}`;
         modalBlock.className = `modal-block ${maxWidth}`;
         modalBlock.insertAdjacentHTML('beforeend', modalBody);
+
+        if (maxWidth !== 'modal-block-empty') {
+            setFocusEffect(modal);
+        }
     });
 
-    modal.addEventListener('click', e => {
-        const isCounterBtns = e.target.classList.contains('count-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    closeModalBtn.addEventListener('click', e => {
+        e.target.nextElementSibling.remove();
+        e.target.parentElement.className = 'modal-block';
+        e.target.closest('.modal').className = 'modal';
+        body.removeAttribute('style');
+    });
 
-        if (isCounterBtns) {
-            calculation(e, myCart);
+    const clickActions = {
+        'count-btn': e => calculation(e, myCart),
+        'show-menu-btn': () => closeModalBtn.click(),
+        'toggler-label': e => {
+            const property = e.target.dataset.property;
+            e.target.parentElement.className = `toggler ${property}`;
+        },
+        'cart-item-delete-btn': e => {
+            const mainParent = e.target.closest('.cart-item');
+            const totalCost = document.querySelector('.total-cost > span');
+            const id = +mainParent.dataset.productId;
+
+            const product = myCart.delete(id);
+            save(myCart);
+            mainParent.remove();
+
+            cartItemsAmount.innerText = myCart.size;
+
+            if (myCart.size !== 0) {
+                const allItems = Array.from(myCart.values());
+                const summ = total(allItems);
+
+                totalCost.innerText = `Сумма ${summ} ₽`;
+
+                const ending = correctEnding(myCart);
+                const title = document.querySelector('.modal-title.cart');
+                title.innerHTML = `Корзина <span>(в корзине ${myCart.size} това${ending})</span>`;
+            } else {
+                modalBlock.querySelector('.modal-body').remove();
+
+                let modalBody;
+                let maxWidth;
+                let modalClass;
+
+                modalClass = 'align-center';
+                maxWidth = 'modal-block-empty';
+
+                modalBody = emptyCart();
+
+                modal.className = `modal flex ${modalClass}`;
+                modalBlock.className = `modal-block ${maxWidth}`;
+                modalBlock.insertAdjacentHTML('beforeend', modalBody);
+            }
+
+            const showcaseProduct = document.getElementById(`product-${id}`);
+            showcaseProduct.querySelector('.added-notice').classList.remove('show');
+            showcaseProduct.querySelector('.add-to-cart-btn').classList.add('show');
+        },
+    };
+
+    modal.addEventListener('click', e => {
+        const classNames = e.target.classList;
+
+        for (const className in clickActions) {
+            if (classNames.contains(className)) {
+                clickActions[className](e);
+                break;
+            }
         }
     });
 

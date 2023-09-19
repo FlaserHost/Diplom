@@ -51,6 +51,7 @@
 <body>
     <section class="modal">
         <div class="modal-block">
+            <button class="close-modal-btn" id="close-modal-btn" type="button"></button>
             <!-- .modal-body -->
         </div>
     </section>

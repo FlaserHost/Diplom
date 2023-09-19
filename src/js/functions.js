@@ -46,3 +46,42 @@ const calculation = (e, myCart) => {
     cost.innerText = `${newCost} ₽`;
     totalCost.innerText = `Сумма ${summ} ₽`;
 }
+
+const correctEnding = myCart => {
+    const size = myCart.size % 100;
+
+    if (size >= 11 && size <= 19) {
+        return 'ров';
+    }
+
+    const lastDigit = myCart.size % 10;
+
+    if (lastDigit === 1) {
+        return 'р';
+    } else if ([2, 3, 4].includes(lastDigit)) {
+        return 'ра';
+    } else {
+        return 'ров';
+    }
+}
+
+const pulse = () => {
+    const pulse = document.createElement('div');
+    pulse.className = 'pulse';
+    return pulse;
+}
+
+const setFocusEffect = modal => {
+    const modalFields = modal.querySelectorAll('.modal-field');
+    modalFields.forEach(field => {
+        field.addEventListener('focus', e => {
+            e.target.parentElement.classList.add('focused');
+        });
+
+        field.addEventListener('blur', e => {
+            if (e.target.value === '') {
+                e.target.parentElement.classList.remove('focused');
+            }
+        });
+    });
+}

@@ -10,26 +10,8 @@ const emptyCart = () => `<article class="modal-body empty flex">
     </article>`;
 
 // Корзина
-const cartModal = (myCart) => {
-    const correctEnding = () => {
-        const size = myCart.size % 100;
-
-        if (size >= 11 && size <= 19) {
-            return 'ров';
-        }
-
-        const lastDigit = myCart.size % 10;
-
-        if (lastDigit === 1) {
-            return 'р';
-        } else if ([2, 3, 4].includes(lastDigit)) {
-            return 'ра';
-        } else {
-            return 'ров';
-        }
-    }
-
-    const ending = correctEnding();
+const cartModal = myCart => {
+    const ending = correctEnding(myCart);
     const cartValues = Array.from(myCart.values());
     const totalCost = total(cartValues);
 
@@ -69,19 +51,37 @@ const cartModal = (myCart) => {
                 <h2 class="modal-title">Оформление заказа</h2>
             </div>
             <div class="client-data">
-                <div class="client-data__contact-info">
-                    <h3>1. Контактная информация</h3>
-                    <div class="fields-wrapper">
-                        <div class="field-area">
-                            <label class="modal-label required" for="client-name">Имя</label>
-                            <input class="modal-field client-name" id="client-name" name="firstname" type="text" required>
-                        </div>
-                        <div class="field-area">
-                            <label class="modal-label required" for="client-phone">Телефон</label>
-                            <input class="modal-field client-phone" id="client-phone" name="phone" type="text" required>
+                <form class="modal-form" id="modal-form" action="#" method="POST">
+                    <div class="section client-data__contact-info">
+                        <h3>1. Контактная информация</h3>
+                        <div class="fields-wrapper">
+                            <div class="field-area">
+                                <div class="label-keeper required">
+                                    <label class="modal-label" for="client-name">Имя</label>
+                                </div>
+                                <input class="modal-field client-name" id="client-name" name="firstname" type="text" required>
+                            </div>
+                            <div class="field-area">
+                                <div class="label-keeper required">
+                                    <label class="modal-label" for="client-phone">Телефон</label>
+                                </div>
+                                <input class="modal-field client-phone" id="client-phone" name="phone" type="text" required>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <div class="section client-data__order-shipping">
+                        <h3>2. Доставка</h3>
+                        <div class="toggler-wrapper">
+                            <div class="toggler shipping">
+                                <div class="carriage"></div>
+                                <input type="radio" name="shipping-type" value="Доставка">
+                                <input type="radio" name="shipping-type" value="Самовывоз">
+                                <label class="toggler-label" for="shipping" data-property="shipping">Доставка</label>
+                                <label class="toggler-label" for="self-delivery" data-property="self-delivery">Самовывоз</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>`;
