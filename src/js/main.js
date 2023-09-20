@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const totalCost = document.querySelector('.total-cost > span');
             const id = +mainParent.dataset.productId;
 
-            const product = myCart.delete(id);
+            myCart.delete(id);
             save(myCart);
             mainParent.remove();
 
@@ -234,22 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     };
 
-    modal.addEventListener('click', e => {
-        const classNames = e.target.classList;
-
-        for (const className in clickActions) {
-            if (classNames.contains(className)) {
-                clickActions[className](e);
-                break;
-            }
+    const inputActions = {
+        'count-field': e => calculation(e, myCart),
+        'client-comment': e => {
+            e.target.style.height = 'auto';
+            e.target.style.height = `${e.target.scrollHeight + 1.33}px`;
         }
-    });
+    };
 
-    modal.addEventListener('input', e => {
-        const isCounterField = e.target.classList.contains('count-field');
-
-        if (isCounterField) {
-            calculation(e, myCart);
-        }
-    });
+    modal.addEventListener('click', e => actionLaunch(e, clickActions));
+    modal.addEventListener('input', e => actionLaunch(e, inputActions));
 });

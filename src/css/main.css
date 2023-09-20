@@ -28,7 +28,9 @@ img {
     object-fit: cover;
 }
 
-button {
+button,
+input,
+textarea {
     background-color: transparent;
     border: none;
     outline: none;
@@ -60,15 +62,30 @@ input[type='number'] {
     -moz-appearance: textfield;
 }
 
-input {
-    background-color: transparent;
-    border: none;
-    outline: none;
-}
-
 input[type='radio'],
 input[type='checkbox'] {
     display: none;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #89C340;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #403C3B;
+    border-left: 1px solid #89C340;
+}
+
+textarea {
+    resize: none;
+}
+
+textarea::-webkit-scrollbar {
+    width: 0;
 }
 
 /* Header */
@@ -793,6 +810,10 @@ input[type='checkbox'] {
     border-radius: 8px;
 }
 
+.client-data__order-shipping {
+    padding-bottom: 55px;
+}
+
 .client-data__contact-info .field-area {
     width: calc(50% - 15px);
     position: relative;
@@ -848,7 +869,8 @@ input[type='checkbox'] {
 }
 
 .toggler {
-    width: 363px;
+    width: 100%;
+    max-width: 363px;
     height: 60px;
     border-radius: 10px;
     border: 1px solid #89C340;
@@ -891,11 +913,33 @@ input[type='checkbox'] {
     font-weight: 900;
 }
 
+.address-block,
+.fields-grid-area {
+    margin-top: 25px;
+}
 
+.fields-grid-area {
+    width: 100%;
+    display: grid;
+    grid: repeat(2, 63px) 1fr / repeat(3, 1fr);
+    gap: 17px;
+}
 
+.fields-grid-area .field-area:first-child {
+    grid-column: 1 / 3;
+}
 
+.fields-grid-area .field-area:nth-child(2) {
+    grid-column: 3 / 4;
+}
 
+.fields-grid-area .field-area:last-child {
+    grid-column: 1 / 4;
+}
 
+.comment-label {
+    top: 30px;
+}
 
 
 

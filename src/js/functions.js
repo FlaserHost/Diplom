@@ -85,3 +85,19 @@ const setFocusEffect = modal => {
         });
     });
 }
+
+const actionLaunch = (e, actions) => {
+    const classNames = e.target.classList;
+
+    for (const className in actions) {
+        if (classNames.contains(className)) {
+            actions[className](e);
+            break;
+        }
+    }
+}
+
+const getData = async path => {
+    const response = await fetch(path);
+    return await response.json();
+}
