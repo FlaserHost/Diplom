@@ -17,7 +17,7 @@ const cartModal = myCart => {
 
     const path = '../../db/actions/SELECT/get_districts.php';
     getData(path).then(data => {
-        const districts = Object.keys(data).map(district => `<li>${data[district]}</li>`);
+        const districts = Object.keys(data).map(district => `<li class="district-item" data-id="${district}">${data[district]} район</li>`);
         const districtsList = document.querySelector('.districts-wrapper .drop-down-list');
         districtsList.insertAdjacentHTML('beforeend', districts.join(''));
     });
@@ -92,13 +92,14 @@ const cartModal = myCart => {
                             <div class="fields-grid-area">
                                 <div class="field-area">
                                     <div class="districts-wrapper">
-                                        <div class="district-field">
+                                        <div class="district-field drop-down-list-field">
                                             <span class="selected-district">Красноармейский район</span>
-                                            <input type="hidden" value="1">
+                                            <input id="hidden-district" type="hidden" value="1">
                                         </div>
                                         <div class="drop-down-list-wrapper">
                                             <ul class="drop-down-list"></ul>
                                         </div>
+                                        <div class="chevron"></div>
                                     </div>
                                 </div>
                                 <div class="field-area">

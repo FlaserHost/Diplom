@@ -63,12 +63,12 @@
             <div class="search-block">
                 <div class="search-in-category" id="search-in-category">
                     <span class="selected-category" id="selected-category">Все категории</span>
-                    <input type="hidden" id="search-category-changed" name="search-category-changed" value="Все категории">
+                    <input type="hidden" id="search-category-changed" name="search-category-changed" value="0">
                     <div class="categories-list-wrapper">
                         <ul class="categories-list">
-                            <li class="search-category" id="category-0">Все категории</li>
+                            <li class="search-category" id="category-0" data-id="0">Все категории</li>
                             <?php foreach ($categories as $category): ?>
-                                <li class="search-category" id="search-category-<?= $category['id_category'] ?>"><?= $category['category'] ?></li>
+                                <li class="search-category" id="search-category-<?= $category['id_category'] ?>" data-id="<?= $category['id_category'] ?>"><?= $category['category'] ?></li>
                             <?php endforeach ?>
                         </ul>
                     </div>

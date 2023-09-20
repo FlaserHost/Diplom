@@ -21,10 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // functions
-    const wrapperZeroHeight = () => {
-        listWrapper.classList.remove('show');
-        listWrapper.style.height = '0';
-        categoryToSearch.classList.remove('opened');
+    const wrapperZeroHeight = list => {
+        list.removeAttribute('style');
+        list.classList.remove('opened');
     }
 
     // header
@@ -38,30 +37,30 @@ document.addEventListener('DOMContentLoaded', () => {
         e.stopPropagation();
         const list = e.target.querySelector('.categories-list');
 
-        if (!listWrapper.classList.contains('show')) {
-            listWrapper.classList.add('show');
-            e.target.classList.add('opened');
+        if (!listWrapper.classList.contains('opened')) {
+            listWrapper.classList.add('opened');
             const listHeight = list.getBoundingClientRect().height;
             listWrapper.style.height = `${listHeight}px`;
         } else {
-            wrapperZeroHeight();
+            wrapperZeroHeight(listWrapper);
         }
     });
 
     document.addEventListener('click', e => {
+        const list = document.querySelectorAll('.opened');
         const currentPath = e.composedPath();
-        if (
-            listWrapper.classList.contains('show') &&
-            !currentPath.includes(listWrapper)
-        ) {
-            wrapperZeroHeight();
+
+        if (list.length && !currentPath.includes(list[0])) {
+            wrapperZeroHeight(list[0]);
         }
     });
 
     headerCategories.forEach(li => {
         li.addEventListener('click', e => {
+            e.stopPropagation();
             selectedCategory.innerText = e.target.innerText;
-            hiddenSelectedCategory.value = e.target.innerText;
+            hiddenSelectedCategory.value = e.target.dataset.id;
+            wrapperZeroHeight(listWrapper);
         });
     });
 
@@ -232,6 +231,27 @@ document.addEventListener('DOMContentLoaded', () => {
             showcaseProduct.querySelector('.added-notice').classList.remove('show');
             showcaseProduct.querySelector('.add-to-cart-btn').classList.add('show');
         },
+        'drop-down-list-field': e => {
+            e.stopPropagation();
+            const sibling = e.target.nextElementSibling;
+
+            if (!sibling.classList.contains('opened')) {
+                sibling.classList.add('opened');
+
+                const height = sibling.querySelector('ul').getBoundingClientRect().height;
+                sibling.style.height = `${height}px`;
+            } else {
+                wrapperZeroHeight(sibling);
+            }
+        },
+        'district-item': e => {
+            const selectedDistrict = modal.querySelector('.selected-district');
+            const hiddenDistrict = modal.querySelector('#hidden-district');
+            selectedDistrict.innerText = e.target.innerText;
+            hiddenDistrict.value = e.target.dataset.id;
+            const opened = e.target.closest('.opened');
+            wrapperZeroHeight(opened);
+        }
     };
 
     const inputActions = {
