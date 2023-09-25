@@ -1,7 +1,7 @@
 <?php
     require_once '../../access/access.php';
 
-    /* @var $data */
+    /** @var $data */
 
     $mysqli = new mysqli(...$data);
 

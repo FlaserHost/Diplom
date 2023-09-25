@@ -564,7 +564,7 @@ textarea::-webkit-scrollbar {
     z-index: 11;
     display: none;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 20px;
     overflow-y: auto;
 }
 
@@ -585,8 +585,8 @@ textarea::-webkit-scrollbar {
     height: 15px;
     background: url('../img/modal/close-cross.svg') no-repeat center / 15px;
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 20px;
+    right: 20px;
     cursor: pointer;
 }
 
@@ -799,12 +799,13 @@ textarea::-webkit-scrollbar {
     margin-top: 40px;
 }
 
-.client-data .section:not(:first-child) {
+.client-data .section:not(:first-child),
+.client-data__contact-info .fields-wrapper,
+.date-time-wrapper {
     margin-top: 25px;
 }
 
-.client-data__contact-info,
-.client-data__order-shipping {
+.section {
     background-color: #4D4847;
     padding: 30px;
     border-radius: 8px;
@@ -821,10 +822,6 @@ textarea::-webkit-scrollbar {
 
 .client-data__contact-info .field-area:first-child {
     margin-right: 15px;
-}
-
-.client-data__contact-info .fields-wrapper {
-    margin-top: 25px;
 }
 
 .field-area,
@@ -847,8 +844,7 @@ textarea::-webkit-scrollbar {
     padding-right: 15px;
 }
 
-.modal-field,
-.district-field {
+.modal-field {
     width: 100%;
     border: 1px solid rgba(255, 255, 255, .1);
     border-radius: 7px;
@@ -926,16 +922,16 @@ textarea::-webkit-scrollbar {
     gap: 17px;
 }
 
-.fields-grid-area .field-area:first-child,
+.fields-grid-area .field-area:nth-child(-n + 2),
 .fields-grid-area .field-area:last-child {
     grid-column: 1 / 4;
 }
 
-.fields-grid-area .field-area:nth-child(2) {
+.fields-grid-area .field-area:nth-child(3) {
     grid-column: 1 / 3;
 }
 
-.fields-grid-area .field-area:nth-child(3) {
+.fields-grid-area .field-area:nth-child(4) {
     grid-column: 3 / 4;
 }
 
@@ -959,26 +955,117 @@ textarea::-webkit-scrollbar {
     padding: 15px;
 }
 
-.district-item {
+.drop-down-item {
     cursor: pointer;
     transition: color .3s;
 }
 
-.district-item:hover {
+.drop-down-item:hover {
     color: #89C340;
 }
 
-.district-item:not(:first-child) {
+.drop-down-item:not(:first-child) {
     margin-top: 10px;
 }
 
-.district-field {
+.drop-down-list-field {
     cursor: pointer;
 }
 
-.selected-district {
+.selected-drop {
     pointer-events: none;
 }
+
+.disabled .selected-drop,
+.disabled label,
+.disabled input {
+    color: #888;
+}
+
+.disabled .chevron {
+    background-image: url('../img/header/chevron-disabled.svg');
+}
+
+.client-data__cart-total-cost {
+    text-align: right;
+    color: #fff;
+    font-size: 25px;
+    font-weight: 900;
+    text-shadow: 0 0 10px #fff;
+}
+
+.modal-footer-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.client-agreed-label {
+    position: relative;
+    color: #fff;
+    padding-left: 30px;
+    cursor: pointer;
+}
+
+.client-agreed-label:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #89C340;
+    border-radius: 3px;
+    background: transparent no-repeat center / 15px;
+}
+
+.client-agreed-checkbox:checked + .client-agreed-label:before {
+    background-image: url('../img/modal/tick.svg');
+}
+
+.client-agreed-label > a {
+    display: inline-block;
+    color: #89C340;
+    position: relative;
+}
+
+.client-agreed-label > a:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #89C340;
+    opacity: 0;
+    transition: opacity .3s;
+}
+
+.client-agreed-label > a:hover:after {
+    opacity: 1;
+}
+
+.order-confirm-btn {
+    background-color: #89C340;
+    color: #fff;
+    font-weight: 600;
+    padding: 15px 40px;
+    border: 1px solid #89C340;
+    border-radius: 6px;
+    transition: .3s;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.order-confirm-btn:hover {
+    background-color: transparent;
+    color: #89C340;
+}
+
 
 
 
@@ -1030,4 +1117,13 @@ textarea::-webkit-scrollbar {
     width: 110px;
     height: 45px;
     animation: impulse .9s;
+}
+
+.disabled {
+    pointer-events: none;
+    cursor: default;
+}
+
+.noty_theme__metroui.noty_bar .noty_progressbar {
+    height: 5px;
 }

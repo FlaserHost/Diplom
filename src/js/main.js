@@ -4,7 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const html = document.querySelector('html');
     const body = document.querySelector('body');
     const cartItemsAmount = document.querySelector('.cart-items-amount');
+    const hiddenTokens = document.querySelectorAll('.token');
     const myCart = new Map();
+
+    const tokens = Array.from(hiddenTokens).reduce((obj, item) => {
+        const id = item.getAttribute('id');
+        obj[id] = item.value;
+        return obj;
+    }, {});
 
     if (localStorage.myCart) {
         const savedData = JSON.parse(localStorage.myCart);
@@ -20,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cartItemsAmount.innerText = myCart.size;
     }
 
-    // functions
+    // mini functions
     const wrapperZeroHeight = list => {
         list.removeAttribute('style');
         list.classList.remove('opened');
@@ -158,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalClass = 'align-start';
             maxWidth = 'modal-block-cart';
 
-            modalBody = cartModal(myCart);
+            modalBody = cartModal(myCart, tokens['token-cart-modal']);
         } else {
             modalClass = 'align-center';
             maxWidth = 'modal-block-empty';
@@ -183,12 +190,64 @@ document.addEventListener('DOMContentLoaded', () => {
         body.removeAttribute('style');
     });
 
+    const standartAddress = {
+        1: ['Волгоград', 1],
+        2: ['Красноармейский', 1],
+    };
+
+    const preparedAddress = {
+        1: ['Волгоград', 1],
+        2: ['Центральный', 6],
+        3: 'Советская',
+        4: 27,
+        5: 1
+    };
+
+    const attributeLabels = {
+        firstname: 'Имя',
+        phone: 'Телефон',
+        street: 'Улица',
+        house: 'Номер дома',
+        date: 'Дата доставки',
+        agreed: 'Я согласен'
+    }
+
     const clickActions = {
         'count-btn': e => calculation(e, myCart),
         'show-menu-btn': () => closeModalBtn.click(),
         'toggler-label': e => {
-            const property = e.target.dataset.property;
-            e.target.parentElement.className = `toggler ${property}`;
+            const dataset = e.target.dataset;
+            e.target.parentElement.className = `toggler ${dataset.property}`;
+
+            const fields = document.querySelectorAll('.address-block .field-area:not(.comment)');
+
+            if (dataset.propertyRus === 'Самовывоз') {
+                fields.forEach((field, index) => {
+                    const input = field.querySelector('input');
+                    field.classList.add('disabled');
+
+                    if (index <= 1) {
+                        field.querySelector('.selected-drop').innerText = preparedAddress[index + 1][0];
+                        input.value = preparedAddress[index + 1][1];
+                    } else {
+                        input.value = preparedAddress[index + 1] || '';
+                        field.classList.add('focused');
+                    }
+                });
+            } else {
+                fields.forEach((field, index) => {
+                    const input = field.querySelector('input');
+                    field.classList.remove('disabled');
+
+                    if (index <= 1) {
+                        field.querySelector('.selected-drop').innerText = standartAddress[index + 1][0];
+                        input.value = standartAddress[index + 1][1];
+                    } else {
+                        input.value = '';
+                        field.classList.remove('focused');
+                    }
+                });
+            }
         },
         'cart-item-delete-btn': e => {
             const mainParent = e.target.closest('.cart-item');
@@ -244,13 +303,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 wrapperZeroHeight(sibling);
             }
         },
-        'district-item': e => {
-            const selectedDistrict = modal.querySelector('.selected-district');
-            const hiddenDistrict = modal.querySelector('#hidden-district');
-            selectedDistrict.innerText = e.target.innerText;
-            hiddenDistrict.value = e.target.dataset.id;
+        'drop-down-item': e => {
+            const parent = e.target.closest('.drop-wrapper');
+            const selected = parent.querySelector('.selected-drop');
+            const hidden = parent.querySelector('.drop-hidden');
+            selected.innerText = e.target.innerText;
+            hidden.value = e.target.dataset.id;
             const opened = e.target.closest('.opened');
             wrapperZeroHeight(opened);
+        },
+        'order-confirm-btn': e => {
+            e.preventDefault();
+            const modalForm = modal.querySelector('#modal-form');
+            const modalData = [...new FormData(modalForm)];
+
+            const requiredFields = document.querySelectorAll('input[required]');
+
+            const dataAssoc = modalData.reduce((obj, field) => {
+                const fieldName = getFieldName(field[0], '-');
+                obj[fieldName] = field[1];
+                return obj;
+            }, {});
+
+            let showTime = 0;
+            requiredFields.forEach(field => {
+                const attr = field.getAttribute('name');
+                const fieldName = getFieldName(attr, '-');
+
+                if (!dataAssoc[fieldName] || dataAssoc[fieldName] === '') {
+                    setTimeout(() => showNotification('warning', `Поле "${attributeLabels[fieldName]}" не заполнено`), showTime);
+                    showTime += 200;
+                }
+            });
         }
     };
 

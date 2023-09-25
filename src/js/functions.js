@@ -7,7 +7,6 @@ const total = array => array.reduce((sum, item) => sum + item.product_cost, 0);
 
 const calculation = (e, myCart) => {
     const isCounterBtns = e.target.classList.contains('count-btn');
-    const isCounterField = e.target.classList.contains('count-field');
 
     const thisParent = e.target.parentElement;
     const currentID = +thisParent.dataset.productId;
@@ -26,7 +25,7 @@ const calculation = (e, myCart) => {
         } else {
             return false;
         }
-    } else if (isCounterField) {
+    } else {
         amount = e.target.value > 0 ? e.target.value : 1;
     }
 
@@ -37,14 +36,21 @@ const calculation = (e, myCart) => {
 
     const countField = thisParent.querySelector('.count-field');
     const cost = thisParent.nextElementSibling.querySelector('.cost');
-    const totalCost = document.querySelector('.total-cost > span');
+    const totalCosts = document.querySelectorAll('.cart-total-cost');
+    const finalTotalCost = document.getElementById('final-total-cost');
 
     const allItems = Array.from(myCart.values());
     const summ = total(allItems);
 
     countField.value = amount;
     cost.innerText = `${newCost} ₽`;
-    totalCost.innerText = `Сумма ${summ} ₽`;
+
+    totalCosts.forEach((item, index) => {
+        const title = index === 0 ? 'Сумма' : 'Итого';
+        item.innerText = `${title}: ${summ} ₽`;
+    });
+
+    finalTotalCost.value = summ;
 }
 
 const correctEnding = myCart => {
@@ -74,10 +80,7 @@ const pulse = () => {
 const setFocusEffect = modal => {
     const modalFields = modal.querySelectorAll('.modal-field');
     modalFields.forEach(field => {
-        field.addEventListener('focus', e => {
-            e.target.parentElement.classList.add('focused');
-        });
-
+        field.addEventListener('focus', e => e.target.parentElement.classList.add('focused'));
         field.addEventListener('blur', e => {
             if (e.target.value === '') {
                 e.target.parentElement.classList.remove('focused');
@@ -97,7 +100,37 @@ const actionLaunch = (e, actions) => {
     }
 }
 
-const getData = async path => {
-    const response = await fetch(path);
-    return await response.json();
+const fetchJSON = async url => {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Неудачная попытка получения данных по пути ${url}`);
+    }
+    return response.json();
+};
+
+const getData = async paths => {
+    try {
+        return await Promise.all(
+            Object.values(paths).map(path => fetchJSON(path))
+        );
+    } catch (error) {
+        console.error('Возникла ошибка: ', error);
+        throw error;
+    }
+};
+
+const showNotification = (type, text) => {
+    new Noty({
+        type: type,
+        layout: 'topRight',
+        theme: 'metroui',
+        timeout: 6000,
+        queue: 'global',
+        text: text,
+        closeWith: ['click', 'button'],
+    }).show();
+
+    Noty.setMaxVisible(10);
 }
+
+const getFieldName = (attr, delimiter) => attr.split(delimiter)[0];

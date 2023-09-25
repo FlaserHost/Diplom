@@ -1,5 +1,18 @@
 <?php
+    session_start();
     require_once 'db/access/access.php';
+    require_once 'db/functions.php';
+
+    $csrfKeepersNames = ['cart-modal', 'auth-modal', 'reg-modal', 'auth-user-modal'];
+    $csrfKeepers = [];
+
+    if (!isset($_SESSION['csrf_tokens'])) {
+        foreach ($csrfKeepersNames as $name) {
+            $csrfKeepers[$name] = generateCSRFToken();
+        }
+
+        $_SESSION['csrf_tokens'] = $csrfKeepers;
+    }
 
     /** @var $data */
 
@@ -41,12 +54,17 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Fresh Market</title>
     <link rel="shortcut icon" href="src/img/header/logo.png">
-    <link rel="stylesheet" href="src/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
     <link rel="stylesheet" href="src/css/fancybox.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css">
+    <link rel="stylesheet" href="src/css/main.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/inputmask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js"></script>
 </head>
 <body>
     <section class="modal">
@@ -66,9 +84,9 @@
                     <input type="hidden" id="search-category-changed" name="search-category-changed" value="0">
                     <div class="categories-list-wrapper">
                         <ul class="categories-list">
-                            <li class="search-category" id="category-0" data-id="0">Все категории</li>
+                            <li class="search-category" data-id="0">Все категории</li>
                             <?php foreach ($categories as $category): ?>
-                                <li class="search-category" id="search-category-<?= $category['id_category'] ?>" data-id="<?= $category['id_category'] ?>"><?= $category['category'] ?></li>
+                                <li class="search-category" data-id="<?= $category['id_category'] ?>"><?= $category['category'] ?></li>
                             <?php endforeach ?>
                         </ul>
                     </div>
@@ -127,11 +145,7 @@
         <section class="showcase">
             <nav class="items-categories">
                 <?php foreach ($categories as $category): ?>
-                    <a
-                            class="nav-category"
-                            id="items-category-<?= $category['id_category'] ?>"
-                            href="#category-<?= $category['id_category'] ?>"
-                    >
+                    <a class="nav-category" href="#category-<?= $category['id_category'] ?>">
                         <?= $category['category'] ?>
                     </a>
                 <?php endforeach ?>
@@ -165,7 +179,7 @@
                                         </div>
                                         <div class="product-footer">
                                             <span class="product-price" data-price="<?= $product['product_price'] ?>"><?= $product['product_price'] ?> ₽</span>
-                                            <button class="add-to-cart-btn show" id="add-to-cart-btn" type="button">В корзину</button>
+                                            <button class="add-to-cart-btn show" type="button">В корзину</button>
                                             <span class="added-notice">Товар уже в корзине</span>
                                         </div>
                                     </div>
@@ -177,6 +191,18 @@
             </div>
         </section>
     </main>
+    <div class="tokens">
+        <?php foreach ($_SESSION['csrf_tokens'] as $key => $token): ?>
+            <input class="token" id="token-<?= $key ?>" type="hidden" value="<?= $token ?>">
+        <?php endforeach ?>
+    </div>
+    <script>
+        <?php if (!isset($_SESSION['auth_user_token'])): ?>
+            if (!localStorage.guest_user_token) {
+                localStorage.guest_user_token = '<?= random_token() ?>';
+            }
+        <?php endif ?>
+    </script>
     <script src="src/js/functions.js"></script>
     <script src="src/js/components.js"></script>
     <script src="src/js/main.js"></script>

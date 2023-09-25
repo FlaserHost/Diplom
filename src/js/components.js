@@ -10,19 +10,66 @@ const emptyCart = () => `<article class="modal-body empty flex">
     </article>`;
 
 // Корзина
-const cartModal = myCart => {
+const cartModal = (myCart, token) => {
     const ending = correctEnding(myCart);
     const cartValues = Array.from(myCart.values());
     const totalCost = total(cartValues);
 
-    const path = '../../db/actions/SELECT/get_districts.php';
-    getData(path).then(data => {
-        const districts = Object.keys(data).map(district => `<li class="district-item" data-id="${district}">${data[district]} район</li>`);
+    const paths = {
+        cities: '../../db/actions/SELECT/get_cities.php',
+        districts: '../../db/actions/SELECT/get_districts.php',
+    };
+
+    getData(paths).then(data => {
+        const cities = Object.keys(data[0]).map(city => `<li class="city-item drop-down-item" data-id="${city}">${data[0][city]}</li>`);
+        const districts = Object.keys(data[1]).map(district => `<li class="district-item drop-down-item" data-id="${district}">${data[1][district]} район</li>`);
+        const citiesList = document.querySelector('.cities-wrapper .drop-down-list');
         const districtsList = document.querySelector('.districts-wrapper .drop-down-list');
+
+        citiesList.insertAdjacentHTML('beforeend', cities.join(''));
         districtsList.insertAdjacentHTML('beforeend', districts.join(''));
     });
 
-    const cartItems = cartValues.map(item => `<article class="cart-item" id="cart-item-${item.product_id}" data-product-id="${item.product_id}">
+    const currentDate = new Date();
+    const disabledDays = ['14.09.2023', '13.12.2023', '06.01.2024', currentDate.toLocaleDateString()];
+
+    setTimeout(() => {
+        const dateField = document.querySelector('#order-date');
+
+        const nextHour = currentDate.getHours() + 1;
+        new AirDatepicker(dateField, {
+            position: 'top center',
+            onRenderCell({ date, cellType }) {
+                if (cellType === 'day') {
+                    const localDate = date.toLocaleDateString();
+                    if (disabledDays.includes(localDate)) {
+                        return {
+                            disabled: true,
+                            classes: 'disabled-class',
+                            attrs: {
+                                title: 'Ячейка недоступна'
+                            }
+                        }
+                    }
+                }
+            },
+            minDate: currentDate,
+            timepicker: true,
+            minHours: 11,
+            maxHours: 20,
+            maxMinutes: 0,
+            altField: '#order-date-hidden',
+            altFieldDateFormat: 'yyyy-MM-dd HH:mm'
+        });
+
+        const phoneFields = document.querySelectorAll('.client-phone');
+        Inputmask({
+            "mask": "+7 (999) 999-99-99",
+            showMaskOnHover: false
+        }).mask(phoneFields);
+    }, 300);
+
+    const cartItems = cartValues.map(item => `<article class="cart-item" data-product-id="${item.product_id}">
                 <figure class="cart-item__photo">
                     <img src="${item.product_photo}" alt="${item.product_name}">
                 </figure>
@@ -51,15 +98,16 @@ const cartModal = myCart => {
             ${cartItems.join('')}
         </div>
         <div class="total-cost">
-            <span>Сумма: ${totalCost} ₽</span>
+            <span class="cart-total-cost">Сумма: ${totalCost} ₽</span>
         </div>
         <div class="order-data">
             <div class="order-data-header">
                 <h2 class="modal-title">Оформление заказа</h2>
             </div>
             <div class="client-data">
-                <form class="modal-form" id="modal-form" action="#" method="POST">
-                    <div class="section client-data__contact-info">
+                <form class="modal-form cart-form" id="modal-form" action="#" method="POST">
+                    <input name="csrf_token" type="hidden" value="${token}">
+                    <article class="section client-data__contact-info">
                         <h3>1. Контактная информация</h3>
                         <div class="fields-wrapper">
                             <div class="field-area">
@@ -75,26 +123,38 @@ const cartModal = myCart => {
                                 <input class="modal-field client-phone" id="client-phone" name="phone" type="text" required>
                             </div>
                         </div>
-                    </div>
-                    <div class="section client-data__order-shipping">
+                    </article>
+                    <article class="section client-data__order-shipping">
                         <h3>2. Доставка</h3>
                         <div class="toggler-wrapper">
                             <div class="toggler shipping">
                                 <div class="carriage"></div>
-                                <input type="radio" name="shipping-type" value="Доставка">
-                                <input type="radio" name="shipping-type" value="Самовывоз">
-                                <label class="toggler-label" for="shipping" data-property="shipping">Доставка</label>
-                                <label class="toggler-label" for="self-delivery" data-property="self-delivery">Самовывоз</label>
+                                <input id="shipping" type="radio" name="shipping-type" value="Доставка">
+                                <input id="self-delivery" type="radio" name="shipping-type" value="Самовывоз">
+                                <label class="toggler-label" for="shipping" data-property="shipping" data-property-rus="Доставка">Доставка</label>
+                                <label class="toggler-label" for="self-delivery" data-property="self-delivery" data-property-rus="Самовывоз">Самовывоз</label>
                             </div>
                         </div>
                         <div class="address-block">
                             <h3>Адрес доставки</h3>
                             <div class="fields-grid-area">
                                 <div class="field-area">
-                                    <div class="districts-wrapper">
-                                        <div class="district-field drop-down-list-field">
-                                            <span class="selected-district">Красноармейский район</span>
-                                            <input id="hidden-district" type="hidden" value="1">
+                                    <div class="drop-wrapper cities-wrapper">
+                                        <div class="modal-field drop-down-list-field">
+                                            <span class="selected-drop">Волгоград</span>
+                                            <input class="drop-hidden" name="hidden-city" type="hidden" value="1">
+                                        </div>
+                                        <div class="drop-down-list-wrapper">
+                                            <ul class="drop-down-list"></ul>
+                                        </div>
+                                        <div class="chevron"></div>
+                                    </div>
+                                </div>
+                                <div class="field-area">
+                                    <div class="drop-wrapper districts-wrapper">
+                                        <div class="modal-field drop-down-list-field">
+                                            <span class="selected-drop">Красноармейский район</span>
+                                            <input class="drop-hidden" name="hidden-district" type="hidden" value="1">
                                         </div>
                                         <div class="drop-down-list-wrapper">
                                             <ul class="drop-down-list"></ul>
@@ -132,7 +192,7 @@ const cartModal = myCart => {
                                     </div>
                                     <input class="modal-field client-floor" id="client-floor" name="floor" type="number">
                                 </div>
-                                <div class="field-area">
+                                <div class="field-area comment">
                                     <div class="label-keeper comment-label">
                                         <label class="modal-label" for="client-comment">Комментарий</label>
                                     </div>
@@ -140,7 +200,32 @@ const cartModal = myCart => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </article>
+                    <article class="section client-data__order-date-time">
+                        <h3>3. Дата и время доставки</h3>
+                        <div class="date-time-wrapper">
+                            <div class="field-area">
+                                 <div class="label-keeper required">
+                                    <label class="modal-label" for="order-date">Дата доставки</label>
+                                 </div>
+                                <input class="modal-field order-date" id="order-date" type="text" readonly>
+                                <input id="order-date-hidden" name="date-order" type="hidden" required>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="section client-data__cart-total-cost">
+                        <span class="cart-total-cost">Итого: ${totalCost} ₽</span>
+                        <input id="final-total-cost" name="final-cart-cost" type="hidden" value="${totalCost}">
+                    </article>
+                    <article class="section client-data__modal-footer">
+                        <div class="modal-footer-wrapper">
+                            <div class="agreed-field">
+                                <input class="client-agreed-checkbox" id="client-agreed-checkbox" name="agreed-client" type="checkbox" required>
+                                <label class="client-agreed-label" for="client-agreed-checkbox">Я согласен на обработку моих перс. данных в соответствии с <a class="conditions-link" id="conditions-link" href="#">Условиями</a></label>
+                            </div>
+                            <button class="order-confirm-btn" type="submit">Оформить заказ</button>
+                        </div>
+                    </article>
                 </form>
             </div>
         </div>
