@@ -15,7 +15,6 @@
     }
 
     /** @var $data */
-
     $mysqli = new mysqli(...$data);
 
     if ($mysqli->connect_error) {
@@ -38,7 +37,7 @@
         $products = $productsResult->fetch_all(MYSQLI_ASSOC);
 
         foreach ($products as $product) {
-            $category = $product['category'];
+            $category = htmlspecialchars($product['category']);
             $showcaseAssoc[$category][] = $product;
             $categoriesNumbers[$category] = $product['id_category'];
         }
@@ -86,7 +85,7 @@
                         <ul class="categories-list">
                             <li class="search-category" data-id="0">Все категории</li>
                             <?php foreach ($categories as $category): ?>
-                                <li class="search-category" data-id="<?= $category['id_category'] ?>"><?= $category['category'] ?></li>
+                                <li class="search-category" data-id="<?= $category['id_category'] ?>"><?= htmlspecialchars($category['category']) ?></li>
                             <?php endforeach ?>
                         </ul>
                     </div>
@@ -114,6 +113,9 @@
                     <span class="cart-btn-title">Корзина</span>
                     <span class="cart-items-amount">0</span>
                 </button>
+            </div>
+            <div class="entry-btn-wrapper">
+                <button class="entry-btn" id="entry-btn" type="button">Войти</button>
             </div>
         </div>
     </header>
@@ -146,7 +148,7 @@
             <nav class="items-categories">
                 <?php foreach ($categories as $category): ?>
                     <a class="nav-category" href="#category-<?= $category['id_category'] ?>">
-                        <?= $category['category'] ?>
+                        <?= htmlspecialchars($category['category']) ?>
                     </a>
                 <?php endforeach ?>
             </nav>
@@ -158,19 +160,24 @@
                         </div>
                         <div class="category-products">
                             <?php foreach ($value as $product): ?>
+                                <?php
+                                    $productPhoto = htmlspecialchars($product['product_photo']);
+                                    $productName = htmlspecialchars($product['product_name']);
+                                    $productComposition = htmlspecialchars($product['product_composition']);
+                                ?>
                                 <article class="category-product" id="product-<?= $product['id_product'] ?>" data-product-id="<?= $product['id_product'] ?>">
-                                    <a href="<?= $product['product_photo'] ?>" data-fancybox="image">
+                                    <a href="<?= $productPhoto ?>" data-fancybox="image">
                                         <figure class="product-photo">
-                                            <img src="<?= $product['product_photo'] ?>" alt="<?= $product['product_name'] ?>">
+                                            <img src="<?= $productPhoto ?>" alt="<?= $productName ?>">
                                         </figure>
                                     </a>
                                     <div class="product-info">
                                         <div class="product-header">
-                                            <h3 title="<?= $product['product_name'] ?>"><?= $product['product_name'] ?></h3>
+                                            <h3 title="<?= $productName ?>"><?= $productName ?></h3>
                                             <span><?= $product['product_weight'] ?> г</span>
                                         </div>
                                         <div class="product-composition">
-                                            Состав: <p><?= $product['product_composition'] ?></p>
+                                            Состав: <p><?= $productComposition ?></p>
                                         </div>
                                         <div class="product-rating">
                                             <?php $width = $product['product_rating'] / 0.05 ?>
@@ -198,9 +205,19 @@
     </div>
     <script>
         <?php if (!isset($_SESSION['auth_user_token'])): ?>
-            if (!localStorage.guest_user_token) {
-                localStorage.guest_user_token = '<?= random_token() ?>';
+            <?php
+                $guestToken = random_token();
+                $_SESSION['guest_user_token'] = $guestToken;
+            ?>
+
+            localStorage.guest_user_token = '<?= $guestToken ?>';
+
+            if (localStorage.auth_user_token) {
+                localStorage.removeItem('auth_user_token');
             }
+        <?php else: ?>
+            localStorage.removeItem('guest_user_token');
+            localStorage.auth_user_token = '<?= $_SESSION['auth_user_token'] ?>';
         <?php endif ?>
     </script>
     <script src="src/js/functions.js"></script>

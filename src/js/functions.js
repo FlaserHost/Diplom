@@ -134,3 +134,8 @@ const showNotification = (type, text) => {
 }
 
 const getFieldName = (attr, delimiter) => attr.split(delimiter)[0];
+
+const itemsInTheCart = myCart => {
+    const itemsArray = Array.from(myCart.values()).map(item => item.product_id);
+    return itemsArray.join(',');
+}

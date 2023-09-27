@@ -318,9 +318,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const modalData = [...new FormData(modalForm)];
 
             const requiredFields = document.querySelectorAll('input[required]');
+            const requiredFieldAmount = requiredFields.length;
+            let validatedFields = 0;
 
             const dataAssoc = modalData.reduce((obj, field) => {
-                const fieldName = getFieldName(field[0], '-');
+                const fieldName = getFieldName(field[0], '_');
                 obj[fieldName] = field[1];
                 return obj;
             }, {});
@@ -328,13 +330,17 @@ document.addEventListener('DOMContentLoaded', () => {
             let showTime = 0;
             requiredFields.forEach(field => {
                 const attr = field.getAttribute('name');
-                const fieldName = getFieldName(attr, '-');
+                const fieldName = getFieldName(attr, '_');
 
                 if (!dataAssoc[fieldName] || dataAssoc[fieldName] === '') {
                     setTimeout(() => showNotification('warning', `Поле "${attributeLabels[fieldName]}" не заполнено`), showTime);
                     showTime += 200;
+                } else {
+                    validatedFields++;
                 }
             });
+
+            validatedFields === requiredFieldAmount && modalForm.submit();
         }
     };
 

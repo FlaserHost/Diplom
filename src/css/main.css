@@ -315,6 +315,20 @@ textarea::-webkit-scrollbar {
     background-color: transparent;
 }
 
+.entry-btn-wrapper {
+    height: 40px;
+    margin-left: 25px;
+}
+
+.entry-btn {
+    width: 100px;
+    height: 100%;
+    padding-left: 40px;
+    font-size: 16px;
+    background: url('../img/header/user.svg') no-repeat left center / contain;
+    cursor: pointer;
+}
+
 /* main slider */
 
 .main-content {

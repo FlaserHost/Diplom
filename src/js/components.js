@@ -33,10 +33,11 @@ const cartModal = (myCart, token) => {
     const currentDate = new Date();
     const disabledDays = ['14.09.2023', '13.12.2023', '06.01.2024', currentDate.toLocaleDateString()];
 
+    let itemsIDs = itemsInTheCart(myCart);
+
     setTimeout(() => {
         const dateField = document.querySelector('#order-date');
 
-        const nextHour = currentDate.getHours() + 1;
         new AirDatepicker(dateField, {
             position: 'top center',
             onRenderCell({ date, cellType }) {
@@ -105,8 +106,9 @@ const cartModal = (myCart, token) => {
                 <h2 class="modal-title">Оформление заказа</h2>
             </div>
             <div class="client-data">
-                <form class="modal-form cart-form" id="modal-form" action="#" method="POST">
+                <form class="modal-form cart-form" id="modal-form" action="db/actions/INSERT/order_confirm.php" method="POST">
                     <input name="csrf_token" type="hidden" value="${token}">
+                    <input name="itemsIDs" type="hidden" value="${itemsIDs}">
                     <article class="section client-data__contact-info">
                         <h3>1. Контактная информация</h3>
                         <div class="fields-wrapper">
@@ -129,8 +131,8 @@ const cartModal = (myCart, token) => {
                         <div class="toggler-wrapper">
                             <div class="toggler shipping">
                                 <div class="carriage"></div>
-                                <input id="shipping" type="radio" name="shipping-type" value="Доставка">
-                                <input id="self-delivery" type="radio" name="shipping-type" value="Самовывоз">
+                                <input id="shipping" type="radio" name="shipping_type" value="Доставка">
+                                <input id="self-delivery" type="radio" name="shipping_type" value="Самовывоз">
                                 <label class="toggler-label" for="shipping" data-property="shipping" data-property-rus="Доставка">Доставка</label>
                                 <label class="toggler-label" for="self-delivery" data-property="self-delivery" data-property-rus="Самовывоз">Самовывоз</label>
                             </div>
@@ -142,7 +144,7 @@ const cartModal = (myCart, token) => {
                                     <div class="drop-wrapper cities-wrapper">
                                         <div class="modal-field drop-down-list-field">
                                             <span class="selected-drop">Волгоград</span>
-                                            <input class="drop-hidden" name="hidden-city" type="hidden" value="1">
+                                            <input class="drop-hidden" name="hidden_city" type="hidden" value="1">
                                         </div>
                                         <div class="drop-down-list-wrapper">
                                             <ul class="drop-down-list"></ul>
@@ -154,7 +156,7 @@ const cartModal = (myCart, token) => {
                                     <div class="drop-wrapper districts-wrapper">
                                         <div class="modal-field drop-down-list-field">
                                             <span class="selected-drop">Красноармейский район</span>
-                                            <input class="drop-hidden" name="hidden-district" type="hidden" value="1">
+                                            <input class="drop-hidden" name="hidden_district" type="hidden" value="1">
                                         </div>
                                         <div class="drop-down-list-wrapper">
                                             <ul class="drop-down-list"></ul>
@@ -172,7 +174,7 @@ const cartModal = (myCart, token) => {
                                     <div class="label-keeper required">
                                         <label class="modal-label" for="client-house-number">Номер дома</label>
                                     </div>
-                                    <input class="modal-field client-house-number" id="client-house-number" name="house-number" type="text" required>
+                                    <input class="modal-field client-house-number" id="client-house-number" name="house_number" type="text" required>
                                 </div>
                                 <div class="field-area">
                                     <div class="label-keeper">
@@ -209,18 +211,18 @@ const cartModal = (myCart, token) => {
                                     <label class="modal-label" for="order-date">Дата доставки</label>
                                  </div>
                                 <input class="modal-field order-date" id="order-date" type="text" readonly>
-                                <input id="order-date-hidden" name="date-order" type="hidden" required>
+                                <input id="order-date-hidden" name="date_order" type="hidden" required>
                             </div>
                         </div>
                     </article>
                     <article class="section client-data__cart-total-cost">
                         <span class="cart-total-cost">Итого: ${totalCost} ₽</span>
-                        <input id="final-total-cost" name="final-cart-cost" type="hidden" value="${totalCost}">
+                        <input id="final-total-cost" name="final_cart_cost" type="hidden" value="${totalCost}">
                     </article>
                     <article class="section client-data__modal-footer">
                         <div class="modal-footer-wrapper">
                             <div class="agreed-field">
-                                <input class="client-agreed-checkbox" id="client-agreed-checkbox" name="agreed-client" type="checkbox" required>
+                                <input class="client-agreed-checkbox" id="client-agreed-checkbox" name="agreed_client" type="checkbox" required>
                                 <label class="client-agreed-label" for="client-agreed-checkbox">Я согласен на обработку моих перс. данных в соответствии с <a class="conditions-link" id="conditions-link" href="#">Условиями</a></label>
                             </div>
                             <button class="order-confirm-btn" type="submit">Оформить заказ</button>
