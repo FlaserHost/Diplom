@@ -203,23 +203,6 @@
             <input class="token" id="token-<?= $key ?>" type="hidden" value="<?= $token ?>">
         <?php endforeach ?>
     </div>
-    <script>
-        <?php if (!isset($_SESSION['auth_user_token'])): ?>
-            <?php
-                $guestToken = random_token();
-                $_SESSION['guest_user_token'] = $guestToken;
-            ?>
-
-            localStorage.guest_user_token = '<?= $guestToken ?>';
-
-            if (localStorage.auth_user_token) {
-                localStorage.removeItem('auth_user_token');
-            }
-        <?php else: ?>
-            localStorage.removeItem('guest_user_token');
-            localStorage.auth_user_token = '<?= $_SESSION['auth_user_token'] ?>';
-        <?php endif ?>
-    </script>
     <script src="src/js/functions.js"></script>
     <script src="src/js/components.js"></script>
     <script src="src/js/main.js"></script>

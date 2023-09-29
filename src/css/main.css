@@ -814,7 +814,7 @@ textarea::-webkit-scrollbar {
 }
 
 .client-data .section:not(:first-child),
-.client-data__contact-info .fields-wrapper,
+.client-data__contact-info .field-area,
 .date-time-wrapper {
     margin-top: 25px;
 }
@@ -829,12 +829,17 @@ textarea::-webkit-scrollbar {
     padding-bottom: 55px;
 }
 
+.client-data__contact-info .fields-wrapper {
+    flex-wrap: wrap;
+}
+
 .client-data__contact-info .field-area {
-    width: calc(50% - 15px);
+    width: 100%;
+    max-width: 260px;
     position: relative;
 }
 
-.client-data__contact-info .field-area:first-child {
+.client-data__contact-info .field-area:not(:last-child) {
     margin-right: 15px;
 }
 
@@ -1063,7 +1068,7 @@ textarea::-webkit-scrollbar {
     opacity: 1;
 }
 
-.order-confirm-btn {
+.confirm-btn {
     background-color: #89C340;
     color: #fff;
     font-weight: 600;
@@ -1075,7 +1080,7 @@ textarea::-webkit-scrollbar {
     font-size: 15px;
 }
 
-.order-confirm-btn:hover {
+.confirm-btn:hover {
     background-color: transparent;
     color: #89C340;
 }

@@ -1,3 +1,4 @@
+'use strict';
 // Модалки
 
 // Пустая корзина
@@ -31,7 +32,7 @@ const cartModal = (myCart, token) => {
     });
 
     const currentDate = new Date();
-    const disabledDays = ['14.09.2023', '13.12.2023', '06.01.2024', currentDate.toLocaleDateString()];
+    const disabledDays = ['10.10.2023', '13.12.2023', '06.01.2024', currentDate.toLocaleDateString()];
 
     let itemsIDs = itemsInTheCart(myCart);
 
@@ -48,7 +49,7 @@ const cartModal = (myCart, token) => {
                             disabled: true,
                             classes: 'disabled-class',
                             attrs: {
-                                title: 'Ячейка недоступна'
+                                title: 'Дата недоступна'
                             }
                         }
                     }
@@ -123,6 +124,12 @@ const cartModal = (myCart, token) => {
                                     <label class="modal-label" for="client-phone">Телефон</label>
                                 </div>
                                 <input class="modal-field client-phone" id="client-phone" name="phone" type="text" required>
+                            </div>
+                            <div class="field-area">
+                                <div class="label-keeper">
+                                    <label class="modal-label" for="client-email">Email</label>
+                                </div>
+                                <input class="modal-field client-email" id="client-email" name="email" type="email">
                             </div>
                         </div>
                     </article>
@@ -211,7 +218,7 @@ const cartModal = (myCart, token) => {
                                     <label class="modal-label" for="order-date">Дата доставки</label>
                                  </div>
                                 <input class="modal-field order-date" id="order-date" type="text" readonly>
-                                <input id="order-date-hidden" name="date_order" type="hidden" required>
+                                <input id="order-date-hidden" name="order_date" type="hidden" required>
                             </div>
                         </div>
                     </article>
@@ -222,10 +229,10 @@ const cartModal = (myCart, token) => {
                     <article class="section client-data__modal-footer">
                         <div class="modal-footer-wrapper">
                             <div class="agreed-field">
-                                <input class="client-agreed-checkbox" id="client-agreed-checkbox" name="agreed_client" type="checkbox" required>
+                                <input class="client-agreed-checkbox" id="client-agreed-checkbox" name="client_agreed" type="checkbox" value="1" required>
                                 <label class="client-agreed-label" for="client-agreed-checkbox">Я согласен на обработку моих перс. данных в соответствии с <a class="conditions-link" id="conditions-link" href="#">Условиями</a></label>
                             </div>
-                            <button class="order-confirm-btn" type="submit">Оформить заказ</button>
+                            <button class="confirm-btn" type="submit">Оформить заказ</button>
                         </div>
                     </article>
                 </form>

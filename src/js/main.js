@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedCategory = document.getElementById('selected-category');
     const hiddenSelectedCategory = document.getElementById('search-category-changed');
 
+    // открытие списка категорий для поискового поля
     categoryToSearch.addEventListener('click', e => {
         e.stopPropagation();
         const list = e.target.querySelector('.categories-list');
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // закрытие выпадающего списка при клике вне его
     document.addEventListener('click', e => {
         const list = document.querySelectorAll('.opened');
         const currentPath = e.composedPath();
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // клик по категориям в шапке
     headerCategories.forEach(li => {
         li.addEventListener('click', e => {
             e.stopPropagation();
@@ -71,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // main showcase nav
+    // обработка якорей
     const allCategoriesSections = document.querySelectorAll('.category-block');
     const navLinks = document.querySelectorAll('.nav-category');
     navLinks.forEach(link => {
@@ -83,8 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // динамическая смена категорий в меню при прокрутке
     const noActive = () => navLinks.forEach(link => link.classList.remove("active"));
-
     const categoryDetector = () => {
         const pos = window.scrollY;
 
@@ -105,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('scroll', categoryDetector);
     document.addEventListener('resize', categoryDetector);
 
-    //main showcase add_to_cart_btn
+    //кнопка добавления в корзину
     const cartBtnWrapper = document.querySelector('.cart-btn-wrapper');
     const addToCartBtn = document.querySelectorAll('.add-to-cart-btn');
     addToCartBtn.forEach(btn => {
@@ -190,11 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
         body.removeAttribute('style');
     });
 
+    // город и район по умолчанию
     const standartAddress = {
         1: ['Волгоград', 1],
         2: ['Красноармейский', 1],
     };
 
+    // адрес для самовывоза
     const preparedAddress = {
         1: ['Волгоград', 1],
         2: ['Центральный', 6],
@@ -203,18 +208,22 @@ document.addEventListener('DOMContentLoaded', () => {
         5: 1
     };
 
+    // расшифровка меток
     const attributeLabels = {
         firstname: 'Имя',
         phone: 'Телефон',
         street: 'Улица',
-        house: 'Номер дома',
-        date: 'Дата доставки',
-        agreed: 'Я согласен'
+        house_number: 'Номер дома',
+        order_date: 'Дата доставки',
+        client_agreed: 'Я согласен'
     }
 
+    const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9-]+\.[A-Z]{2,4}$/i;
+
+    // функции выполняемые при клике ни элементы
     const clickActions = {
-        'count-btn': e => calculation(e, myCart),
-        'show-menu-btn': () => closeModalBtn.click(),
+        'count-btn': e => calculation(e, myCart), // увеличение/уменьшение числа товара внутри одной позиции
+        'show-menu-btn': () => closeModalBtn.click(), // клие по кнопке "Посмотреть меню"
         'toggler-label': e => {
             const dataset = e.target.dataset;
             e.target.parentElement.className = `toggler ${dataset.property}`;
@@ -248,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
-        },
+        }, // выбор способа получения заказа
         'cart-item-delete-btn': e => {
             const mainParent = e.target.closest('.cart-item');
             const totalCost = document.querySelector('.total-cost > span');
@@ -289,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const showcaseProduct = document.getElementById(`product-${id}`);
             showcaseProduct.querySelector('.added-notice').classList.remove('show');
             showcaseProduct.querySelector('.add-to-cart-btn').classList.add('show');
-        },
+        }, // кнопка удаления товара из корзины
         'drop-down-list-field': e => {
             e.stopPropagation();
             const sibling = e.target.nextElementSibling;
@@ -302,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 wrapperZeroHeight(sibling);
             }
-        },
+        }, // клик по выпадающему списку
         'drop-down-item': e => {
             const parent = e.target.closest('.drop-wrapper');
             const selected = parent.querySelector('.selected-drop');
@@ -311,47 +320,59 @@ document.addEventListener('DOMContentLoaded', () => {
             hidden.value = e.target.dataset.id;
             const opened = e.target.closest('.opened');
             wrapperZeroHeight(opened);
-        },
-        'order-confirm-btn': e => {
+        }, // клик по пункту выпадающего списка
+        'confirm-btn': e => {
             e.preventDefault();
             const modalForm = modal.querySelector('#modal-form');
             const modalData = [...new FormData(modalForm)];
 
             const requiredFields = document.querySelectorAll('input[required]');
-            const requiredFieldAmount = requiredFields.length;
-            let validatedFields = 0;
+            const emailField = document.querySelector('.client-email');
+            const fieldsCollection = [...requiredFields, emailField];
 
             const dataAssoc = modalData.reduce((obj, field) => {
-                const fieldName = getFieldName(field[0], '_');
-                obj[fieldName] = field[1];
+                obj[field[0]] = field[1];
                 return obj;
             }, {});
 
-            let showTime = 0;
-            requiredFields.forEach(field => {
-                const attr = field.getAttribute('name');
-                const fieldName = getFieldName(attr, '_');
+            const requiredFieldAmount = dataAssoc.email === ''
+                ? requiredFields.length
+                : requiredFields.length + 1;
 
-                if (!dataAssoc[fieldName] || dataAssoc[fieldName] === '') {
-                    setTimeout(() => showNotification('warning', `Поле "${attributeLabels[fieldName]}" не заполнено`), showTime);
-                    showTime += 200;
+            let validatedFields = 0;
+            let delay = 0;
+
+            fieldsCollection.forEach(field => {
+                const fieldName = field.getAttribute('name');
+                const value = dataAssoc[fieldName];
+
+                if ((!value || value === '') && fieldName !== 'email') {
+                    setTimeout(() => showNotification('warning', `Поле "${attributeLabels[fieldName]}" не заполнено`), delay);
+                    delay += 200;
+                } else if (fieldName === 'phone' && value.indexOf('_') !== -1) {
+                    setTimeout(() => showNotification('warning', 'Номер телефона введен не корректно'), delay);
+                    delay += 200;
+                } else if (fieldName === 'email' && value !== '' && !emailPattern.test(value)) {
+                    setTimeout(() => showNotification('warning', 'Email не корректен'), delay);
+                    delay += 200;
                 } else {
                     validatedFields++;
                 }
             });
 
             validatedFields === requiredFieldAmount && modalForm.submit();
-        }
+        } // кнопка подтверждения заказа
     };
 
+    // функции выполняемые при вводе
     const inputActions = {
-        'count-field': e => calculation(e, myCart),
+        'count-field': e => calculation(e, myCart), // ввод в поле увеличения/уменьшения числа товара внутри одной позиции
         'client-comment': e => {
             e.target.style.height = 'auto';
             e.target.style.height = `${e.target.scrollHeight + 1.33}px`;
-        }
+        } // ввод в поле комментария
     };
 
-    modal.addEventListener('click', e => actionLaunch(e, clickActions));
-    modal.addEventListener('input', e => actionLaunch(e, inputActions));
+    modal.addEventListener('click', e => actionLaunch(e, clickActions)); // обработка клика
+    modal.addEventListener('input', e => actionLaunch(e, inputActions)); // обработка ввода
 });

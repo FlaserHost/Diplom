@@ -1,3 +1,4 @@
+'use strict';
 const save = myCart => localStorage.myCart = JSON.stringify(Array.from(myCart.values()));
 
 // Стоимость корзины
@@ -132,8 +133,6 @@ const showNotification = (type, text) => {
 
     Noty.setMaxVisible(10);
 }
-
-const getFieldName = (attr, delimiter) => attr.split(delimiter)[0];
 
 const itemsInTheCart = myCart => {
     const itemsArray = Array.from(myCart.values()).map(item => item.product_id);
