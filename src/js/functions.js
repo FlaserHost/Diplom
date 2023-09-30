@@ -120,6 +120,18 @@ const getData = async paths => {
     }
 };
 
+const getRequestedData = async (path, id) => {
+    try {
+        const response = await fetch(path, {
+           method: 'POST',
+           body: JSON.stringify({id})
+        });
+
+        return await response.json();
+    } catch (err) {
+        console.error(`Ошибка: ${err}`);
+    }
+}
 const showNotification = (type, text) => {
     new Noty({
         type: type,

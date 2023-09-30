@@ -231,6 +231,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const fields = document.querySelectorAll('.address-block .field-area:not(.comment)');
 
             if (dataset.propertyRus === 'Самовывоз') {
+                const districtFieldArea = modal.querySelector('.field-area.district');
+
+                if (districtFieldArea.hasAttribute('style')) {
+                    const districtHidden = modal.querySelector('input[name="hidden_district"]');
+                    districtFieldArea.removeAttribute('style');
+                    districtHidden.disabled = false;
+                }
+
                 fields.forEach((field, index) => {
                     const input = field.querySelector('input');
                     field.classList.add('disabled');
@@ -318,6 +326,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const hidden = parent.querySelector('.drop-hidden');
             selected.innerText = e.target.innerText;
             hidden.value = e.target.dataset.id;
+
+            const districtFieldArea = modal.querySelector('.field-area.district');
+            const districtHidden = modal.querySelector('input[name="hidden_district"]');
+            if (e.target.classList.contains('city-item') && e.target.innerText !== 'Волгоград') {
+                districtFieldArea.style.display = 'none';
+                districtHidden.disabled = true;
+            } else {
+                districtFieldArea.style.display = 'block';
+                districtHidden.disabled = false;
+            }
+
             const opened = e.target.closest('.opened');
             wrapperZeroHeight(opened);
         }, // клик по пункту выпадающего списка
@@ -375,4 +394,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modal.addEventListener('click', e => actionLaunch(e, clickActions)); // обработка клика
     modal.addEventListener('input', e => actionLaunch(e, inputActions)); // обработка ввода
+
+    // открытие модалки с рейтингом и отзывами
+    const ratingModal = document.querySelectorAll('.product-rating');
+    ratingModal.forEach(rating => {
+        rating.addEventListener('click', e => {
+            const productID = e.target.closest('.category-product').dataset.productId;
+            productModal(productID);
+        });
+    });
 });

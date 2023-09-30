@@ -503,6 +503,7 @@ textarea::-webkit-scrollbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
 }
 
 .current-product-rating {

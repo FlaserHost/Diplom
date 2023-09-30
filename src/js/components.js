@@ -1,6 +1,5 @@
 'use strict';
 // Модалки
-
 // Пустая корзина
 const emptyCart = () => `<article class="modal-body empty flex">
         <figure>
@@ -138,7 +137,7 @@ const cartModal = (myCart, token) => {
                         <div class="toggler-wrapper">
                             <div class="toggler shipping">
                                 <div class="carriage"></div>
-                                <input id="shipping" type="radio" name="shipping_type" value="Доставка">
+                                <input id="shipping" type="radio" name="shipping_type" value="Доставка" checked>
                                 <input id="self-delivery" type="radio" name="shipping_type" value="Самовывоз">
                                 <label class="toggler-label" for="shipping" data-property="shipping" data-property-rus="Доставка">Доставка</label>
                                 <label class="toggler-label" for="self-delivery" data-property="self-delivery" data-property-rus="Самовывоз">Самовывоз</label>
@@ -159,7 +158,7 @@ const cartModal = (myCart, token) => {
                                         <div class="chevron"></div>
                                     </div>
                                 </div>
-                                <div class="field-area">
+                                <div class="field-area district">
                                     <div class="drop-wrapper districts-wrapper">
                                         <div class="modal-field drop-down-list-field">
                                             <span class="selected-drop">Красноармейский район</span>
@@ -239,4 +238,11 @@ const cartModal = (myCart, token) => {
             </div>
         </div>
     </div>`;
+}
+
+const productModal = id => {
+    const path = '../../db/actions/SELECT/get_product.php';
+    getRequestedData(path, id).then(data => console.log(data));
+
+
 }

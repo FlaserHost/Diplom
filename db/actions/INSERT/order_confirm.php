@@ -50,6 +50,7 @@
                     $getMaxValue = $mysqli->query($requestMaxValue); // выполнение запроса
                     $maxValue = $getMaxValue->fetch_assoc(); // получение результата выполнения запроса
                     $maxValue = $maxValue['max_value'] !== null ? ++$maxValue['max_value'] : 1; // если был хотя бы один заказ, то увеличить полученное значение на 1, иначе взять цифру 1 за номер заказа
+                    $districtID = $orderData['hidden_district'] ?? null;
 
                     // внесение данных по заказу в таблицу order_full
                     $query = "INSERT INTO order_full VALUES (NULL, LPAD('$maxValue', 7, '0'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"; // SQL запрос
@@ -64,7 +65,7 @@
                             $orderData['phone'],
                             $orderData['email'],
                             $orderData['hidden_city'],
-                            $orderData['hidden_district'],
+                            $districtID,
                             $orderData['street'],
                             $orderData['house_number'],
                             $orderData['entrance'],

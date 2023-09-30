@@ -22,7 +22,7 @@
     }
 
     $categoriesQuery = "SELECT * FROM categories";
-    $productsQuery = "SELECT *, categories.category AS category FROM products
+    $productsQuery = "SELECT products.*, categories.category AS category FROM products
                       JOIN categories ON products.id_category = categories.id_category
                       ORDER BY products.id_category ASC";
 

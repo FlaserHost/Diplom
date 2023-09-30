@@ -7,3 +7,19 @@
     function generateCSRFToken() {
         return bin2hex(random_bytes(32));
     }
+
+    function requestExecutor($connection, $request, $id) {
+        $rows = '';
+        if ($smtp = $connection->prepare($request)) {
+            $smtp->bind_param('i', $id);
+
+            if ($smtp->execute()) {
+                $result = $smtp->get_result();
+                $rows = $result->fetch_all(MYSQLI_ASSOC);
+            }
+
+            $smtp->close();
+        }
+
+        return $rows;
+    }
