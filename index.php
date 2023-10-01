@@ -203,6 +203,13 @@
             <input class="token" id="token-<?= $key ?>" type="hidden" value="<?= $token ?>">
         <?php endforeach ?>
     </div>
+    <script>
+        <?php if (isset($_SESSION['auth_user_token'])): ?>
+            localStorage.auth_token = '<?= $_SESSION['auth_user_token'] ?>';
+        <?php else: ?>
+            localStorage.removeItem('auth_token');
+        <?php endif ?>
+    </script>
     <script src="src/js/functions.js"></script>
     <script src="src/js/components.js"></script>
     <script src="src/js/main.js"></script>

@@ -154,15 +154,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // modal
     const modal = document.querySelector('.modal');
     const modalBlock = document.querySelector('.modal-block');
+    let modalBody;
+    let maxWidth;
+    let modalClass;
 
     const cartBtn = document.getElementById('cart-btn');
     cartBtn.addEventListener('click', e => {
         e.target.classList.remove('flex');
         body.style.overflow = 'hidden';
-
-        let modalBody;
-        let maxWidth;
-        let modalClass;
 
         if (myCart.size !== 0) {
             modalClass = 'align-start';
@@ -176,9 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalBody = emptyCart();
         }
 
-        modal.className = `modal flex ${modalClass}`;
-        modalBlock.className = `modal-block ${maxWidth}`;
-        modalBlock.insertAdjacentHTML('beforeend', modalBody);
+        defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
 
         if (maxWidth !== 'modal-block-empty') {
             setFocusEffect(modal);
@@ -400,7 +397,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ratingModal.forEach(rating => {
         rating.addEventListener('click', e => {
             const productID = e.target.closest('.category-product').dataset.productId;
-            productModal(productID);
+            modalBody = productModal(productID);
+            modalClass = 'align-start';
+            maxWidth = 'modal-product-info';
+            body.style.overflow = 'hidden';
+            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
         });
     });
 });

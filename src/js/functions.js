@@ -150,3 +150,9 @@ const itemsInTheCart = myCart => {
     const itemsArray = Array.from(myCart.values()).map(item => item.product_id);
     return itemsArray.join(',');
 }
+
+const defineModal = (modal, modalClass, modalBlock, maxWidth, modalBody) => {
+    modal.className = `modal flex ${modalClass}`;
+    modalBlock.className = `modal-block ${maxWidth}`;
+    modalBlock.insertAdjacentHTML('beforeend', modalBody);
+}

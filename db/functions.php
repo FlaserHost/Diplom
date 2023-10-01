@@ -8,10 +8,10 @@
         return bin2hex(random_bytes(32));
     }
 
-    function requestExecutor($connection, $request, $id) {
+    function requestExecutor($connection, $request, $type, $id) {
         $rows = '';
         if ($smtp = $connection->prepare($request)) {
-            $smtp->bind_param('i', $id);
+            $smtp->bind_param($type, $id);
 
             if ($smtp->execute()) {
                 $result = $smtp->get_result();

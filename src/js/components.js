@@ -241,8 +241,98 @@ const cartModal = (myCart, token) => {
 }
 
 const productModal = id => {
-    const path = '../../db/actions/SELECT/get_product.php';
-    getRequestedData(path, id).then(data => console.log(data));
+    const path = '../../db/actions/SELECT/get_product_info.php';
+    getRequestedData(path, id).then(data => {
+        const info = data.info[0];
 
+        const productInfo = `<section class="product-info-section">
+            <div class="current-product-info__photo">
+                <figure>
+                    <img src="${info.photo}" alt="${info.name}">
+                </figure>
+            </div>
+            <article class="current-product-info">
+                <h2>${info.name}</h2>
+                <p class="current-product current-product-description">${info.description}</p>
+                <p class="current-product current-product-composition"><span>Состав:</span><br>${info.composition}</p>
+                <span class="current-product current-product-weight">Вес: ${info.weight} г</span>
+                <div class="current-product current-product-price">
+                    <span>${info.price} ₽</span>
+                </div>
+            </article>
+        </section>`;
 
+        let feedbackItems = ['<span class="no-feedback">Нет отзывов</span>'];
+
+        if (data.feedback) {
+            feedbackItems = data.feedback.map((feedback, index) => {
+                const user = data.user[index];
+
+                const noAvatarPath = 'src/img/header/user.svg';
+                return `<article class="feedback-item">
+                    <div class="feedback__header">
+                        <div class="feedback__user-info">
+                            <figure>
+                                <img src="${user.avatar !== '' ? user.avatar : noAvatarPath}" alt="avatar">
+                            </figure>
+                            <div class="name-time">
+                                <span class="feedback__username">${user.firstname}</span>
+                                <time class="feedback__time" datetime="${feedback.datetime}">${feedback.datetime}</time>
+                            </div>
+                        </div>
+                        <div class="feedback__rating">
+                            <div class="feedback__rating-wrapper">
+                                <input type="radio" name="feedback-rate" value="5" aria-label="5">
+                                <span></span>
+                                <input type="radio" name="feedback-rate" value="4" aria-label="4">
+                                <span></span>
+                                <input type="radio" name="feedback-rate" value="3" aria-label="3" checked>
+                                <span></span>
+                                <input type="radio" name="feedback-rate" value="2" aria-label="2">
+                                <span></span>
+                                <input type="radio" name="feedback-rate" value="1" aria-label="1">
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feedback__body">
+                        <p>${feedback.feedback}</p>
+                    </div>
+                </article>`
+            });
+        }
+
+        const canIWrite = localStorage.auth_token ? `<textarea></textarea>` : `<strong>Авторизируйтесь, чтобы оставить отзыв</strong>`;
+
+        const feedback = `<section class="product-feedback-section">
+            <div class="feedback-wrapper">
+                <h2>Отзывы</h2>
+                ${feedbackItems.join('')}
+            </div>
+            <div class="write-feedback">
+                ${canIWrite}
+            </div>
+        </section>`;
+
+        const modalSections = [productInfo, feedback];
+        const productInfoModal = document.querySelector('.product-info-modal');
+        modalSections.forEach(section => productInfoModal.insertAdjacentHTML('beforeend', section));
+    });
+
+    return `<div class="modal-body product-info-modal flex"></div>`;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
