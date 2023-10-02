@@ -68,8 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
     headerCategories.forEach(li => {
         li.addEventListener('click', e => {
             e.stopPropagation();
+
             selectedCategory.innerText = e.target.innerText;
+            selectedCategory.dataset.id = e.target.dataset.id;
             hiddenSelectedCategory.value = e.target.dataset.id;
+
             wrapperZeroHeight(listWrapper);
         });
     });
@@ -397,7 +400,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ratingModal.forEach(rating => {
         rating.addEventListener('click', e => {
             const parent = e.target.closest('.category-product');
-            const productID = parent.dataset.productId;
+            const productID = {
+                id: parent.dataset.productId
+            };
 
             modalBody = productModal(productID);
             modalClass = 'align-start';
@@ -406,4 +411,69 @@ document.addEventListener('DOMContentLoaded', () => {
             defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
         });
     });
+
+    // поиск по сайту
+    const searchPath = '../../db/actions/SELECT/search.php';
+    const searchField = document.getElementById('search-field');
+    const loupe = document.getElementById('loupe');
+    const showcase = document.querySelector('.showcase');
+    const showcaseChildren = [...showcase.children];
+
+    loupe.addEventListener('click', () => {
+        const searchData = {
+            category: selectedCategory.dataset.id,
+            product: searchField.value
+        };
+
+        getRequestedData(searchPath, searchData).then(data => {
+            showcaseChildren.forEach(item => item.style.display = 'none');
+            let match = 'По Вашему запросу нет результатов';
+            let products = [];
+
+            if (data.length > 0) {
+                match = `По вашему запросу найдено ${data.length} совпадений`;
+                products = data.map(item => {
+                    const width = item.rating / 0.05;
+
+                    return `<article class="found-product" id="found-product-${item.id_product}" data-product-id="${item.id_product}">
+                                    <a href="${item.photo}" data-fancybox="image">
+                                        <figure class="product-photo">
+                                            <img src="${item.photo}" alt="${item.name}">
+                                        </figure>
+                                    </a>
+                                    <div class="product-info">
+                                        <div class="product-header">
+                                            <h3 title="${item.name}">${item.name}</h3>
+                                            <span>${item.weight} г</span>
+                                        </div>
+                                        <div class="product-composition">
+                                            Состав: <p>${item.composition}</p>
+                                        </div>
+                                        <div class="product-rating">
+                                            <div class="current-product-rating" style="width: ${width}%"></div>
+                                            <span class="rating">${item.rating}</span>
+                                        </div>
+                                        <div class="product-footer">
+                                            <span class="product-price" data-price="${item.price}">${item.price} ₽</span>
+                                            <button class="add-to-cart-btn show" type="button">В корзину</button>
+                                            <span class="added-notice">Товар уже в корзине</span>
+                                        </div>
+                                    </div>
+                             </article>`;
+                });
+
+                const searchResult = `<div class="showcase__items">
+                    <section class="found-results">
+                        <div class="found-products">
+                            ${products.join('')}
+                        </div>
+                    </section>
+                </div>`;
+
+                showcase.insertAdjacentHTML('beforeend', searchResult);
+            } else {
+                console.log(match);
+            }
+        });
+    })
 });

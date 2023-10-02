@@ -120,11 +120,11 @@ const getData = async paths => {
     }
 };
 
-const getRequestedData = async (path, id) => {
+const getRequestedData = async (path, obj) => {
     try {
         const response = await fetch(path, {
            method: 'POST',
-           body: JSON.stringify({id})
+           body: JSON.stringify({...obj})
         });
 
         return await response.json();

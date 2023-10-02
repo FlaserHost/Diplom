@@ -79,7 +79,7 @@
             </figure>
             <div class="search-block">
                 <div class="search-in-category" id="search-in-category">
-                    <span class="selected-category" id="selected-category">Все категории</span>
+                    <span class="selected-category" id="selected-category" data-id="0">Все категории</span>
                     <input type="hidden" id="search-category-changed" name="search-category-changed" value="0">
                     <div class="categories-list-wrapper">
                         <ul class="categories-list">
@@ -100,7 +100,7 @@
                             placeholder="Введите искомое блюдо..."
                             aria-label="Поиск"
                     >
-                    <div class="loupe"></div>
+                    <div class="loupe" id="loupe"></div>
                 </div>
             </div>
             <div class="contacts-wrapper">
@@ -164,6 +164,9 @@
                                     $productPhoto = htmlspecialchars($product['product_photo']);
                                     $productName = htmlspecialchars($product['product_name']);
                                     $productComposition = htmlspecialchars($product['product_composition']);
+                                    $productWeight = htmlspecialchars($product['product_weight']);
+                                    $productPrice = htmlspecialchars($product['product_price']);
+                                    $productRating = htmlspecialchars($product['product_rating']);
                                 ?>
                                 <article class="category-product" id="product-<?= $product['id_product'] ?>" data-product-id="<?= $product['id_product'] ?>">
                                     <a href="<?= $productPhoto ?>" data-fancybox="image">
@@ -174,18 +177,18 @@
                                     <div class="product-info">
                                         <div class="product-header">
                                             <h3 title="<?= $productName ?>"><?= $productName ?></h3>
-                                            <span><?= $product['product_weight'] ?> г</span>
+                                            <span><?= $productWeight ?> г</span>
                                         </div>
                                         <div class="product-composition">
                                             Состав: <p><?= $productComposition ?></p>
                                         </div>
                                         <div class="product-rating">
-                                            <?php $width = $product['product_rating'] / 0.05 ?>
+                                            <?php $width = $productRating / 0.05 ?>
                                             <div class="current-product-rating" style="width: <?= $width ?>%"></div>
-                                            <span class="rating"><?= $product['product_rating'] ?></span>
+                                            <span class="rating"><?= $productRating ?></span>
                                         </div>
                                         <div class="product-footer">
-                                            <span class="product-price" data-price="<?= $product['product_price'] ?>"><?= $product['product_price'] ?> ₽</span>
+                                            <span class="product-price" data-price="<?= $productPrice ?>"><?= $productPrice ?> ₽</span>
                                             <button class="add-to-cart-btn show" type="button">В корзину</button>
                                             <span class="added-notice">Товар уже в корзине</span>
                                         </div>

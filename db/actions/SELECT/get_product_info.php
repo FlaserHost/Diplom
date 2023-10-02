@@ -2,7 +2,7 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /** @var $data */
 
-        $productData = json_decode(file_get_contents("php://input"));
+        $productData = json_decode(file_get_contents('php://input'));
 
         if ($productData) {
             require_once '../../access/access.php';
@@ -67,4 +67,6 @@
             $obj = [...$product, ...$feedback, ...$users];
             echo json_encode($obj);
         }
+    } else {
+        echo 'Ошибка. Неверный метод запроса.';
     }

@@ -431,14 +431,16 @@ textarea::-webkit-scrollbar {
     background-color: #89C340;
 }
 
-.category-products {
+.category-products,
+.found-products {
     display: grid;
     grid: 1fr / repeat(auto-fill, minmax(250px, 255px));
     gap: 15px;
     margin-top: 40px;
 }
 
-.category-product {
+.category-product,
+.found-product {
     width: 100%;
     height: 100%;
     border-radius: 8px;
