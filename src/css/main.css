@@ -88,6 +88,10 @@ textarea::-webkit-scrollbar {
     width: 0;
 }
 
+::selection {
+    background-color: #89C340;
+}
+
 /* Header */
 
 .page-header {
@@ -498,7 +502,7 @@ textarea::-webkit-scrollbar {
 
 .product-rating {
     position: relative;
-    width: 108.5px;
+    width: 108.27px;
     height: 30px;
     display: flex;
     justify-content: space-between;
@@ -1122,7 +1126,8 @@ textarea::-webkit-scrollbar {
 }
 
 .current-product-footer {
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
     margin-top: auto;
 }
 
@@ -1208,6 +1213,26 @@ textarea::-webkit-scrollbar {
 .feedback__rating-wrapper > :checked ~ span:after {
     color: #ffd700;
 }
+
+.product-info-modal .product-rating {
+    width: 175.1px;
+    height: 34px;
+    pointer-events: none;
+    cursor: default;
+}
+
+.product-info-modal .product-rating:before,
+.product-info-modal .current-product-rating:before {
+    font-size: 42px;
+}
+
+.product-info-modal .rating {
+    font-size: 30px;
+    margin-left: 16px;
+    transform: translateY(6px);
+}
+
+
 
 
 

@@ -393,10 +393,12 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.addEventListener('input', e => actionLaunch(e, inputActions)); // обработка ввода
 
     // открытие модалки с рейтингом и отзывами
-    const ratingModal = document.querySelectorAll('.product-rating');
+    const ratingModal = document.querySelectorAll('.showcase .product-rating');
     ratingModal.forEach(rating => {
         rating.addEventListener('click', e => {
-            const productID = e.target.closest('.category-product').dataset.productId;
+            const parent = e.target.closest('.category-product');
+            const productID = parent.dataset.productId;
+
             modalBody = productModal(productID);
             modalClass = 'align-start';
             maxWidth = 'modal-product-info';

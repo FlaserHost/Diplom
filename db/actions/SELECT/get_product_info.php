@@ -57,7 +57,8 @@
                     'composition' => htmlspecialchars($row['product_composition']),
                     'weight' => htmlspecialchars($row['product_weight']),
                     'price' => htmlspecialchars($row['product_price']),
-                    'photo' => htmlspecialchars($row['product_photo'])
+                    'photo' => htmlspecialchars($row['product_photo']),
+                    'rating' => htmlspecialchars($row['product_rating'])
                 ];
 
                 $product['info'][] = $rowData;

@@ -245,6 +245,7 @@ const productModal = id => {
     const path = '../../db/actions/SELECT/get_product_info.php';
     getRequestedData(path, id).then(data => {
         const info = data.info[0];
+        const width = info.rating / 0.05;
 
         const productInfo = `<section class="product-info-section">
             <div class="current-product-info__photo">
@@ -258,8 +259,9 @@ const productModal = id => {
                 <p class="current-product current-product-composition"><span>Состав:</span><br>${info.composition}</p>
                 <span class="current-product current-product-weight">Вес: ${info.weight} г</span>
                 <div class="current-product current-product-footer">
-                    <div class="current-product-total-raiting">
-                        
+                    <div class="product-rating">
+                        <div class="current-product-rating" style="width: ${width}%"></div>
+                        <span class="rating">${info.rating}</span>
                     </div>
                     <span class="current-product-price">${info.price} ₽</span>
                 </div>
