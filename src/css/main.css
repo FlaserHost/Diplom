@@ -1121,12 +1121,12 @@ textarea::-webkit-scrollbar {
     font-size: 18px;
 }
 
-.current-product-price {
+.current-product-footer {
     text-align: right;
     margin-top: auto;
 }
 
-.current-product-price > span {
+.current-product-price {
     font-size: 35px;
 }
 
@@ -1185,6 +1185,10 @@ textarea::-webkit-scrollbar {
     margin-top: 35px;
 }
 
+.feedback__rating {
+    align-self: flex-start;
+}
+
 .feedback__rating-wrapper {
     display: flex;
     flex-direction: row-reverse;
@@ -1201,7 +1205,7 @@ textarea::-webkit-scrollbar {
     font-size: 25px;
 }
 
-.feedback__rating-wrapper > input:checked ~ span:after {
+.feedback__rating-wrapper > :checked ~ span:after {
     color: #ffd700;
 }
 

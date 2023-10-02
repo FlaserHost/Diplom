@@ -240,6 +240,7 @@ const cartModal = (myCart, token) => {
     </div>`;
 }
 
+const stars = Array(5).fill(1);
 const productModal = id => {
     const path = '../../db/actions/SELECT/get_product_info.php';
     getRequestedData(path, id).then(data => {
@@ -256,8 +257,11 @@ const productModal = id => {
                 <p class="current-product current-product-description">${info.description}</p>
                 <p class="current-product current-product-composition"><span>Состав:</span><br>${info.composition}</p>
                 <span class="current-product current-product-weight">Вес: ${info.weight} г</span>
-                <div class="current-product current-product-price">
-                    <span>${info.price} ₽</span>
+                <div class="current-product current-product-footer">
+                    <div class="current-product-total-raiting">
+                        
+                    </div>
+                    <span class="current-product-price">${info.price} ₽</span>
                 </div>
             </article>
         </section>`;
@@ -267,6 +271,15 @@ const productModal = id => {
         if (data.feedback) {
             feedbackItems = data.feedback.map((feedback, index) => {
                 const user = data.user[index];
+                const rateNumber = index + 1;
+
+                const ratingStart = stars.map((_, index, self) => {
+                    const starWeight = self.length - index;
+                    const isChecked = +feedback.rating === starWeight;
+
+                    return `<input type="radio" name="feedback-rate-${rateNumber}" value="${starWeight}" aria-label="${starWeight}" ${!isChecked ? '' : 'checked'}>
+                            <span></span>`;
+                });
 
                 const noAvatarPath = 'src/img/header/user.svg';
                 return `<article class="feedback-item">
@@ -282,16 +295,7 @@ const productModal = id => {
                         </div>
                         <div class="feedback__rating">
                             <div class="feedback__rating-wrapper">
-                                <input type="radio" name="feedback-rate" value="5" aria-label="5">
-                                <span></span>
-                                <input type="radio" name="feedback-rate" value="4" aria-label="4">
-                                <span></span>
-                                <input type="radio" name="feedback-rate" value="3" aria-label="3" checked>
-                                <span></span>
-                                <input type="radio" name="feedback-rate" value="2" aria-label="2">
-                                <span></span>
-                                <input type="radio" name="feedback-rate" value="1" aria-label="1">
-                                <span></span>
+                                ${ratingStart.join('')}
                             </div>
                         </div>
                     </div>
@@ -302,7 +306,9 @@ const productModal = id => {
             });
         }
 
-        const canIWrite = localStorage.auth_token ? `<textarea></textarea>` : `<strong>Авторизируйтесь, чтобы оставить отзыв</strong>`;
+        const canIWrite = localStorage.auth_token
+            ? `<textarea></textarea>`
+            : `<strong>Авторизируйтесь, чтобы оставить отзыв</strong>`;
 
         const feedback = `<section class="product-feedback-section">
             <div class="feedback-wrapper">
