@@ -337,8 +337,9 @@ textarea::-webkit-scrollbar {
 
 .main-content {
     margin-top: 92px;
-    background: rgb(64,60,59);
-    background: linear-gradient(165deg, rgba(64,60,59,1) 53%, rgba(137,195,64,1) 200%);
+    width: 100%;
+    background: rgb(64, 60, 59) linear-gradient(165deg, rgb(64, 60, 59) 53%, rgb(137, 195, 64) 200%);
+    min-height: 100vh;
 }
 
 .main-content .swiper {
@@ -1234,6 +1235,10 @@ textarea::-webkit-scrollbar {
     transform: translateY(6px);
 }
 
+.results-title {
+    color: #fff;
+    font-size: 30px;
+}
 
 
 

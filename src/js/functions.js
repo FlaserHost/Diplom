@@ -1,11 +1,43 @@
 'use strict';
 const save = myCart => localStorage.myCart = JSON.stringify(Array.from(myCart.values()));
 
+const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
+    const currentParent = e.target.closest('.current-card');
+    const children = [...currentParent.children];
+
+    const product_id = +currentParent.dataset.productId;
+    const product_name = children[1].querySelector('h3').innerText;
+    const product_composition = children[1].querySelector('p').innerText;
+    const product_price = +children[1].querySelector('.product-price').dataset.price;
+    const product_photo = children[0].getAttribute('href');
+
+    const info = {
+        product_id,
+        product_name,
+        product_composition,
+        product_price,
+        product_amount: 1,
+        product_cost: product_price,
+        product_photo
+    };
+
+    myCart.set(info.product_id, info);
+    save(myCart);
+
+    e.target.classList.remove('show');
+    children[1].querySelector('.added-notice').classList.add('show');
+    cartItemsAmount.innerText = myCart.size;
+
+    const impulse = pulse();
+    cartBtnWrapper.insertAdjacentElement('afterbegin', impulse);
+
+    setTimeout(() => impulse.remove(), 900);
+}
+
 // Стоимость корзины
 const total = array => array.reduce((sum, item) => sum + item.product_cost, 0);
 
 // Калькуляция
-
 const calculation = (e, myCart) => {
     const isCounterBtns = e.target.classList.contains('count-btn');
 
@@ -54,21 +86,25 @@ const calculation = (e, myCart) => {
     finalTotalCost.value = summ;
 }
 
-const correctEnding = myCart => {
-    const size = myCart.size % 100;
+const correctEnding = (item, amount) => {
+    const [elevenNineteen, one, twoFour] = item === 'cart'
+        ? ['ров', 'р', 'ра']
+        : ['ний', 'ние', 'ния'];
+
+    const size = amount % 100;
 
     if (size >= 11 && size <= 19) {
-        return 'ров';
+        return elevenNineteen;
     }
 
-    const lastDigit = myCart.size % 10;
+    const lastDigit = amount % 10;
 
     if (lastDigit === 1) {
-        return 'р';
+        return one;
     } else if ([2, 3, 4].includes(lastDigit)) {
-        return 'ра';
+        return twoFour;
     } else {
-        return 'ров';
+        return elevenNineteen;
     }
 }
 
@@ -132,6 +168,7 @@ const getRequestedData = async (path, obj) => {
         console.error(`Ошибка: ${err}`);
     }
 }
+
 const showNotification = (type, text) => {
     new Noty({
         type: type,

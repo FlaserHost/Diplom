@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const headerCategories = document.querySelectorAll('.search-category');
     const selectedCategory = document.getElementById('selected-category');
     const hiddenSelectedCategory = document.getElementById('search-category-changed');
+    const cartBtnWrapper = document.querySelector('.cart-btn-wrapper');
 
     // открытие списка категорий для поискового поля
     categoryToSearch.addEventListener('click', e => {
@@ -61,6 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (list.length && !currentPath.includes(list[0])) {
             wrapperZeroHeight(list[0]);
+        }
+
+        if (e.target.classList.contains('add-to-cart-btn')) {
+            addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper);
         }
     });
 
@@ -110,49 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('scroll', categoryDetector);
     document.addEventListener('resize', categoryDetector);
-
-    //кнопка добавления в корзину
-    const cartBtnWrapper = document.querySelector('.cart-btn-wrapper');
-    const addToCartBtn = document.querySelectorAll('.add-to-cart-btn');
-    addToCartBtn.forEach(btn => {
-        btn.addEventListener('click', e => {
-            const currentParent = e.target.closest('.category-product');
-            const children = [...currentParent.children];
-
-            /*
-                children[0] = a
-                children[1] = .product-info
-             */
-
-            const product_id = +currentParent.dataset.productId;
-            const product_name = children[1].querySelector('h3').innerText;
-            const product_composition = children[1].querySelector('p').innerText;
-            const product_price = +children[1].querySelector('.product-price').dataset.price;
-            const product_photo = children[0].getAttribute('href');
-
-            const info = {
-                product_id,
-                product_name,
-                product_composition,
-                product_price,
-                product_amount: 1,
-                product_cost: product_price,
-                product_photo
-            };
-
-            myCart.set(info.product_id, info);
-            save(myCart);
-
-            e.target.classList.remove('show');
-            children[1].querySelector('.added-notice').classList.add('show');
-            cartItemsAmount.innerText = myCart.size;
-
-            const impulse = pulse();
-            cartBtnWrapper.insertAdjacentElement('afterbegin', impulse);
-
-            setTimeout(() => impulse.remove(), 900);
-        });
-    });
 
     // modal
     const modal = document.querySelector('.modal');
@@ -283,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 totalCost.innerText = `Сумма ${summ} ₽`;
 
-                const ending = correctEnding(myCart);
+                const ending = correctEnding('cart', myCart.size);
                 const title = document.querySelector('.modal-title.cart');
                 title.innerHTML = `Корзина <span>(в корзине ${myCart.size} това${ending})</span>`;
             } else {
@@ -427,15 +389,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         getRequestedData(searchPath, searchData).then(data => {
             showcaseChildren.forEach(item => item.style.display = 'none');
+
             let match = 'По Вашему запросу нет результатов';
             let products = [];
 
+            const foundItems = document.querySelectorAll('.found-items');
+            foundItems.length > 0 && foundItems[0].remove();
+
             if (data.length > 0) {
-                match = `По вашему запросу найдено ${data.length} совпадений`;
+                const ending = correctEnding('match', data.length);
+                match = `По вашему запросу найдено ${data.length} совпаде${ending}`;
                 products = data.map(item => {
+                    const [showBtn, showNotice] = !myCart.has(item.id_product)
+                        ? ['show', '']
+                        : ['', 'show'];
+
                     const width = item.rating / 0.05;
 
-                    return `<article class="found-product" id="found-product-${item.id_product}" data-product-id="${item.id_product}">
+                    return `<article class="found-product current-card" id="found-product-${item.id_product}" data-product-id="${item.id_product}">
                                     <a href="${item.photo}" data-fancybox="image">
                                         <figure class="product-photo">
                                             <img src="${item.photo}" alt="${item.name}">
@@ -455,25 +426,26 @@ document.addEventListener('DOMContentLoaded', () => {
                                         </div>
                                         <div class="product-footer">
                                             <span class="product-price" data-price="${item.price}">${item.price} ₽</span>
-                                            <button class="add-to-cart-btn show" type="button">В корзину</button>
-                                            <span class="added-notice">Товар уже в корзине</span>
+                                            <button class="add-to-cart-btn ${showBtn}" type="button">В корзину</button>
+                                            <span class="added-notice ${showNotice}">Товар уже в корзине</span>
                                         </div>
                                     </div>
                              </article>`;
                 });
+            }
 
-                const searchResult = `<div class="showcase__items">
+            const searchResult = `<div class="showcase__items found-items">
                     <section class="found-results">
+                        <div class="results-title">
+                            <span>${match}</span>
+                        </div>
                         <div class="found-products">
                             ${products.join('')}
                         </div>
                     </section>
                 </div>`;
 
-                showcase.insertAdjacentHTML('beforeend', searchResult);
-            } else {
-                console.log(match);
-            }
+            showcase.insertAdjacentHTML('beforeend', searchResult);
         });
     })
 });

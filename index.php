@@ -44,6 +44,10 @@
     } else {
         die("Ошибка выполнения SQL-запроса: " . $mysqli->error);
     }
+
+    $categoriesResult->free();
+    $productsResult->free();
+    $mysqli->close();
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -168,7 +172,7 @@
                                     $productPrice = htmlspecialchars($product['product_price']);
                                     $productRating = htmlspecialchars($product['product_rating']);
                                 ?>
-                                <article class="category-product" id="product-<?= $product['id_product'] ?>" data-product-id="<?= $product['id_product'] ?>">
+                                <article class="category-product current-card" id="product-<?= $product['id_product'] ?>" data-product-id="<?= $product['id_product'] ?>">
                                     <a href="<?= $productPhoto ?>" data-fancybox="image">
                                         <figure class="product-photo">
                                             <img src="<?= $productPhoto ?>" alt="<?= $productName ?>">
@@ -220,7 +224,3 @@
     <script src="src/js/fancybox.js"></script>
 </body>
 </html>
-<?php
-    $categoriesResult->free();
-    $productsResult->free();
-    $mysqli->close();

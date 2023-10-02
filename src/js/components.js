@@ -11,7 +11,7 @@ const emptyCart = () => `<article class="modal-body empty flex">
 
 // Корзина
 const cartModal = (myCart, token) => {
-    const ending = correctEnding(myCart);
+    const ending = correctEnding('cart', myCart.size);
     const cartValues = Array.from(myCart.values());
     const totalCost = total(cartValues);
 
