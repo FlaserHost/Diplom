@@ -23,8 +23,8 @@ const cartModal = (myCart, token) => {
     getData(paths).then(data => {
         const cities = Object.keys(data[0]).map(city => `<li class="city-item drop-down-item" data-id="${city}">${data[0][city]}</li>`);
         const districts = Object.keys(data[1]).map(district => `<li class="district-item drop-down-item" data-id="${district}">${data[1][district]} район</li>`);
-        const citiesList = document.querySelector('.cities-wrapper .drop-down-list');
-        const districtsList = document.querySelector('.districts-wrapper .drop-down-list');
+        const citiesList = body.querySelector('.cities-wrapper .drop-down-list');
+        const districtsList = body.querySelector('.districts-wrapper .drop-down-list');
 
         citiesList.insertAdjacentHTML('beforeend', cities.join(''));
         districtsList.insertAdjacentHTML('beforeend', districts.join(''));
@@ -36,7 +36,7 @@ const cartModal = (myCart, token) => {
     let itemsIDs = itemsInTheCart(myCart);
 
     setTimeout(() => {
-        const dateField = document.querySelector('#order-date');
+        const dateField = body.querySelector('#order-date');
 
         new AirDatepicker(dateField, {
             position: 'top center',
@@ -329,6 +329,47 @@ const productModal = id => {
 
     return `<div class="modal-body product-info-modal flex"></div>`;
 }
+
+// Форма входа
+
+const authBody = `<article class="entry-body auth-body">
+    <div class="field-area">
+        <div class="label-keeper required">
+            <label class="modal-label" for="auth-login">Логин</label>
+        </div>
+        <input class="modal-field auth-login" id="auth-login" name="login" type="text" required>
+    </div>
+    <div class="field-area">
+        <div class="label-keeper required">
+            <label class="modal-label" for="auth-password">Пароль</label>
+        </div>
+        <input class="modal-field auth-password" id="auth-password" name="password" type="password" required>
+    </div>
+</article>`;
+
+const entryModal = () => {
+    return `<div class="modal-body entry-modal flex">
+        <div class="tabs-wrapper auth">
+            <div class="carret"></div>
+            <button class="entry-modal-tab auth-tab bold-white" data-action="auth" type="button">Авторизация</button>
+            <button class="entry-modal-tab reg-tab" data-action="reg" type="button">Регистрация</button>
+        </div>
+        <form id="entry-form" action="db/actions/SELECT/auth.php" method="POST">
+            ${authBody}
+            <button class="confirm-btn" data-action="Авторизация" type="submit">Авторизоваться</button>
+        </form>
+    </div>`;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

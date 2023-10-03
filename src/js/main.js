@@ -1,10 +1,8 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const html = document.querySelector('html');
-    const body = document.querySelector('body');
-    const cartItemsAmount = document.querySelector('.cart-items-amount');
-    const hiddenTokens = document.querySelectorAll('.token');
+    const cartItemsAmount = body.querySelector('.cart-items-amount');
+    const hiddenTokens = body.querySelectorAll('.token');
     const myCart = new Map();
 
     const tokens = Array.from(hiddenTokens).reduce((obj, item) => {
@@ -35,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // header
     const categoryToSearch = document.getElementById('search-in-category');
-    const listWrapper = document.querySelector('.page-header .categories-list-wrapper');
-    const headerCategories = document.querySelectorAll('.search-category');
+    const listWrapper = body.querySelector('.page-header .categories-list-wrapper');
+    const headerCategories = body.querySelectorAll('.search-category');
     const selectedCategory = document.getElementById('selected-category');
     const hiddenSelectedCategory = document.getElementById('search-category-changed');
-    const cartBtnWrapper = document.querySelector('.cart-btn-wrapper');
+    const cartBtnWrapper = body.querySelector('.cart-btn-wrapper');
 
     // открытие списка категорий для поискового поля
     categoryToSearch.addEventListener('click', e => {
@@ -53,106 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             wrapperZeroHeight(listWrapper);
         }
-    });
-
-    // закрытие выпадающего списка при клике вне его
-    document.addEventListener('click', e => {
-        const list = document.querySelectorAll('.opened');
-        const currentPath = e.composedPath();
-
-        if (list.length && !currentPath.includes(list[0])) {
-            wrapperZeroHeight(list[0]);
-        }
-
-        if (e.target.classList.contains('add-to-cart-btn')) {
-            addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper);
-        }
-    });
-
-    // клик по категориям в шапке
-    headerCategories.forEach(li => {
-        li.addEventListener('click', e => {
-            e.stopPropagation();
-
-            selectedCategory.innerText = e.target.innerText;
-            selectedCategory.dataset.id = e.target.dataset.id;
-            hiddenSelectedCategory.value = e.target.dataset.id;
-
-            wrapperZeroHeight(listWrapper);
-        });
-    });
-
-    // обработка якорей
-    const allCategoriesSections = document.querySelectorAll('.category-block');
-    const navLinks = document.querySelectorAll('.nav-category');
-    navLinks.forEach(link => {
-        link.addEventListener('click', e => {
-            e.preventDefault();
-            const desiredCategory = e.target.getAttribute('href');
-            const categoryTop = document.querySelector(desiredCategory).offsetTop;
-            html.scroll({ top: categoryTop - 185, behavior: 'smooth' });
-        });
-    });
-
-    // динамическая смена категорий в меню при прокрутке
-    const noActive = () => navLinks.forEach(link => link.classList.remove("active"));
-    const categoryDetector = () => {
-        const pos = window.scrollY;
-
-        if (pos !== 0) {
-            allCategoriesSections.forEach((section, index) => {
-                const rect = section.offsetTop;
-
-                if (rect - 200 <= pos) {
-                    noActive();
-                    navLinks[index].classList.add("active");
-                }
-            });
-        } else {
-            noActive();
-        }
-    }
-
-    document.addEventListener('scroll', categoryDetector);
-    document.addEventListener('resize', categoryDetector);
-
-    // modal
-    const modal = document.querySelector('.modal');
-    const modalBlock = document.querySelector('.modal-block');
-    let modalBody;
-    let maxWidth;
-    let modalClass;
-
-    const cartBtn = document.getElementById('cart-btn');
-    cartBtn.addEventListener('click', e => {
-        e.target.classList.remove('flex');
-        body.style.overflow = 'hidden';
-
-        if (myCart.size !== 0) {
-            modalClass = 'align-start';
-            maxWidth = 'modal-block-cart';
-
-            modalBody = cartModal(myCart, tokens['token-cart-modal']);
-        } else {
-            modalClass = 'align-center';
-            maxWidth = 'modal-block-empty';
-
-            modalBody = emptyCart();
-        }
-
-        defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
-
-        if (maxWidth !== 'modal-block-empty') {
-            setFocusEffect(modal);
-        }
-    });
-
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    closeModalBtn.addEventListener('click', e => {
-        e.target.nextElementSibling.remove();
-        e.target.parentElement.className = 'modal-block';
-        e.target.closest('.modal').className = 'modal';
-        body.removeAttribute('style');
     });
 
     // город и район по умолчанию
@@ -182,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9-]+\.[A-Z]{2,4}$/i;
 
-    // функции выполняемые при клике ни элементы
+    // функции выполняемые при клике на элементы
     const clickActions = {
         'count-btn': e => calculation(e, myCart), // увеличение/уменьшение числа товара внутри одной позиции
         'show-menu-btn': () => closeModalBtn.click(), // клие по кнопке "Посмотреть меню"
@@ -265,9 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalBlock.insertAdjacentHTML('beforeend', modalBody);
             }
 
-            const showcaseProduct = document.getElementById(`product-${id}`);
-            showcaseProduct.querySelector('.added-notice').classList.remove('show');
-            showcaseProduct.querySelector('.add-to-cart-btn').classList.add('show');
+            visibilityToggler(id);
         }, // кнопка удаления товара из корзины
         'drop-down-list-field': e => {
             e.stopPropagation();
@@ -342,7 +238,41 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             validatedFields === requiredFieldAmount && modalForm.submit();
-        } // кнопка подтверждения заказа
+        }, // кнопка подтверждения заказа
+        'add-to-cart-btn': e => addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper),
+        'clickable-rating': e => {
+            const parent = e.target.closest('.current-card');
+            const productID = {
+                id: parent.dataset.productId
+            };
+
+            modalBody = productModal(productID);
+            modalClass = 'align-start';
+            maxWidth = 'modal-product-info';
+            body.style.overflow = 'hidden';
+            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+        }, // открыть info о продукте
+        'back-to-showcase': () => {
+            const foundItems = document.querySelector('.found-items');
+            foundItems.remove();
+            showcaseChildren.forEach(item => item.removeAttribute('style'));
+            searchField.value = '';
+        }, // вернуться на витрину
+        'entry-modal-tab': e => {
+            const action = e.target.dataset.action;
+            const parent = e.target.parentElement;
+            const entryForm = parent.nextElementSibling;
+            parent.className = `tabs-wrapper ${action}`;
+            const tabs = parent.querySelectorAll('.entry-modal-tab');
+            tabs.forEach(tab => tab.classList.toggle('bold-white'));
+
+            const url = {
+                'auth': 'db/actions/SELECT/auth.php',
+                'reg': 'db/actions/INSERT/reg.php'
+            };
+
+            entryForm.setAttribute('action', url[action]);
+        },
     };
 
     // функции выполняемые при вводе
@@ -354,32 +284,114 @@ document.addEventListener('DOMContentLoaded', () => {
         } // ввод в поле комментария
     };
 
-    modal.addEventListener('click', e => actionLaunch(e, clickActions)); // обработка клика
-    modal.addEventListener('input', e => actionLaunch(e, inputActions)); // обработка ввода
+    // делегирование событий на body
+    body.addEventListener('click', e => {
+        const list = body.querySelectorAll('.opened');
+        const currentPath = e.composedPath();
 
-    // открытие модалки с рейтингом и отзывами
-    const ratingModal = document.querySelectorAll('.showcase .product-rating');
-    ratingModal.forEach(rating => {
-        rating.addEventListener('click', e => {
-            const parent = e.target.closest('.category-product');
-            const productID = {
-                id: parent.dataset.productId
-            };
+        if (list.length && !currentPath.includes(list[0])) {
+            wrapperZeroHeight(list[0]);
+        }
 
-            modalBody = productModal(productID);
-            modalClass = 'align-start';
-            maxWidth = 'modal-product-info';
-            body.style.overflow = 'hidden';
-            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+        actionLaunch(e, clickActions);
+    });
+
+    // клик по категориям в шапке
+    headerCategories.forEach(li => {
+        li.addEventListener('click', e => {
+            e.stopPropagation();
+
+            selectedCategory.innerText = e.target.innerText;
+            selectedCategory.dataset.id = e.target.dataset.id;
+            hiddenSelectedCategory.value = e.target.dataset.id;
+
+            wrapperZeroHeight(listWrapper);
         });
     });
+
+    // обработка якорей
+    const allCategoriesSections = body.querySelectorAll('.category-block');
+    const navLinks = body.querySelectorAll('.nav-category');
+    navLinks.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const desiredCategory = e.target.getAttribute('href');
+            const categoryTop = body.querySelector(desiredCategory).offsetTop;
+            html.scroll({ top: categoryTop - 185, behavior: 'smooth' });
+        });
+    });
+
+    // динамическая смена категорий в меню при прокрутке
+    const noActive = () => navLinks.forEach(link => link.classList.remove("active"));
+    const categoryDetector = () => {
+        const pos = window.scrollY;
+
+        if (pos !== 0) {
+            allCategoriesSections.forEach((section, index) => {
+                const rect = section.offsetTop;
+
+                if (rect - 200 <= pos) {
+                    noActive();
+                    navLinks[index].classList.add("active");
+                }
+            });
+        } else {
+            noActive();
+        }
+    }
+
+    document.addEventListener('scroll', categoryDetector);
+    document.addEventListener('resize', categoryDetector);
+
+    // Модальное окно
+    const modal = body.querySelector('.modal');
+    const modalBlock = body.querySelector('.modal-block');
+    let modalBody;
+    let maxWidth;
+    let modalClass;
+
+    const cartBtn = document.getElementById('cart-btn');
+    cartBtn.addEventListener('click', e => {
+        e.target.classList.remove('flex');
+        body.style.overflow = 'hidden';
+
+        if (myCart.size !== 0) {
+            modalClass = 'align-start';
+            maxWidth = 'modal-block-cart';
+
+            modalBody = cartModal(myCart, tokens['token-cart-modal']);
+        } else {
+            modalClass = 'align-center';
+            maxWidth = 'modal-block-empty';
+
+            modalBody = emptyCart();
+        }
+
+        defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+
+        if (maxWidth !== 'modal-block-empty') {
+            setFocusEffect(modal);
+        }
+    });
+
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    closeModalBtn.addEventListener('click', e => {
+        e.target.nextElementSibling.remove();
+        e.target.parentElement.className = 'modal-block';
+        e.target.closest('.modal').className = 'modal';
+        body.removeAttribute('style');
+    });
+
+    modal.addEventListener('input', e => actionLaunch(e, inputActions)); // обработка ввода
 
     // поиск по сайту
     const searchPath = '../../db/actions/SELECT/search.php';
     const searchField = document.getElementById('search-field');
     const loupe = document.getElementById('loupe');
-    const showcase = document.querySelector('.showcase');
+    const showcase = body.querySelector('.showcase');
     const showcaseChildren = [...showcase.children];
+
+    searchField.addEventListener('keyup', e => e.key === 'Enter' && loupe.click());
 
     loupe.addEventListener('click', () => {
         const searchData = {
@@ -393,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let match = 'По Вашему запросу нет результатов';
             let products = [];
 
-            const foundItems = document.querySelectorAll('.found-items');
+            const foundItems = body.querySelectorAll('.found-items');
             foundItems.length > 0 && foundItems[0].remove();
 
             if (data.length > 0) {
@@ -420,13 +432,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <div class="product-composition">
                                             Состав: <p>${item.composition}</p>
                                         </div>
-                                        <div class="product-rating">
+                                        <div class="product-rating clickable-rating">
                                             <div class="current-product-rating" style="width: ${width}%"></div>
                                             <span class="rating">${item.rating}</span>
                                         </div>
                                         <div class="product-footer">
                                             <span class="product-price" data-price="${item.price}">${item.price} ₽</span>
-                                            <button class="add-to-cart-btn ${showBtn}" type="button">В корзину</button>
+                                            <button class="add-to-cart-btn found-btn ${showBtn}" type="button">В корзину</button>
                                             <span class="added-notice ${showNotice}">Товар уже в корзине</span>
                                         </div>
                                     </div>
@@ -436,6 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const searchResult = `<div class="showcase__items found-items">
                     <section class="found-results">
+                        <button class="back-to-showcase" type="button">Вернуться на витрину</button>
                         <div class="results-title">
                             <span>${match}</span>
                         </div>
@@ -448,4 +461,42 @@ document.addEventListener('DOMContentLoaded', () => {
             showcase.insertAdjacentHTML('beforeend', searchResult);
         });
     })
+
+    // модальное окно авторизации/регистрации
+    const entryBtn = document.getElementById('entry-btn');
+    entryBtn.addEventListener('click', () => {
+        const modalBody = entryModal();
+        modalClass = 'align-center';
+        maxWidth = 'modal-block-entry';
+        body.style.overflow = 'hidden';
+
+        defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+        setFocusEffect(modal);
+    });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

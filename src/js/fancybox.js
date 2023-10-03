@@ -1,3 +1,5 @@
+'use strict';
+
 Fancybox.bind("[data-fancybox]", {
     hideScrollbar: false,
     Carousel: {

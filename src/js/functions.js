@@ -1,5 +1,14 @@
 'use strict';
+
+const html = document.querySelector('html');
+const body = document.querySelector('body');
 const save = myCart => localStorage.myCart = JSON.stringify(Array.from(myCart.values()));
+
+const visibilityToggler = id => {
+    const mainProduct = document.getElementById(`product-${id}`);
+    const interactiveItems = mainProduct.querySelectorAll('.interactive-item');
+    interactiveItems.forEach(item => item.classList.toggle('show'));
+}
 
 const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
     const currentParent = e.target.closest('.current-card');
@@ -32,6 +41,10 @@ const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
     cartBtnWrapper.insertAdjacentElement('afterbegin', impulse);
 
     setTimeout(() => impulse.remove(), 900);
+
+    if (e.target.classList.contains('found-btn')) {
+        visibilityToggler(product_id);
+    }
 }
 
 // Стоимость корзины
@@ -87,9 +100,12 @@ const calculation = (e, myCart) => {
 }
 
 const correctEnding = (item, amount) => {
-    const [elevenNineteen, one, twoFour] = item === 'cart'
-        ? ['ров', 'р', 'ра']
-        : ['ний', 'ние', 'ния'];
+    const endings = {
+        'cart': ['ров', 'р', 'ра'],
+        'match': ['ний', 'ние', 'ния']
+    };
+
+    const [elevenNineteen, one, twoFour] = endings[item];
 
     const size = amount % 100;
 

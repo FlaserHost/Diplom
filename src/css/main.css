@@ -596,6 +596,7 @@ textarea::-webkit-scrollbar {
     padding: 35px 25px;
     border-radius: 12px;
     position: relative;
+    overflow: hidden;
 }
 
 .modal-body {
@@ -610,6 +611,11 @@ textarea::-webkit-scrollbar {
     top: 20px;
     right: 20px;
     cursor: pointer;
+    z-index: 2;
+}
+
+.modal-block-entry > .close-modal-btn {
+    transform: translateY(-7px);
 }
 
 /* empty-cart modal */
@@ -1238,16 +1244,78 @@ textarea::-webkit-scrollbar {
 .results-title {
     color: #fff;
     font-size: 30px;
+    margin-top: 15px;
 }
 
+.back-to-showcase {
+    color: #89C340;
+    cursor: pointer;
+    font-size: 18px;
+    padding-left: 25px;
+    background: url('../img/main/showcase/search/double-arrow.svg') no-repeat left center / 20px;
+}
 
+.back-to-showcase:hover {
+    text-decoration: underline;
+}
 
+.clickable-rating > * {
+    pointer-events: none;
+}
 
+/* entry-modal */
+.entry-modal .tabs-wrapper {
+    width: 100%;
+}
 
+.entry-modal .tabs-wrapper {
+    width: 100%;
+    display: flex;
+    position: relative;
+}
 
+.entry-modal .entry-modal-tab {
+    width: 50%;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    z-index: 1;
+    cursor: pointer;
+    color: #fff;
+}
 
+.carret {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    background-color: #89C340;
+    transition: left .3s;
+}
 
+.auth > .carret {
+    left: 0;
+}
 
+.reg > .carret {
+    left: 50%;
+}
+
+.bold-white {
+    font-weight: 900;
+    color: #fff;
+}
+
+.entry-body {
+    padding: 20px;
+    background-color: #4D4847;
+}
+
+.entry-body .field-area:last-child {
+    margin-top: 15px;
+}
 
 /* технические стили */
 
@@ -1257,6 +1325,11 @@ textarea::-webkit-scrollbar {
 
 .modal-block-empty {
     max-width: 420px;
+}
+
+.modal-block-entry {
+    max-width: 660px;
+    padding: 0;
 }
 
 .modal-block-cart {

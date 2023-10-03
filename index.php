@@ -186,15 +186,15 @@
                                         <div class="product-composition">
                                             Состав: <p><?= $productComposition ?></p>
                                         </div>
-                                        <div class="product-rating">
+                                        <div class="product-rating clickable-rating">
                                             <?php $width = $productRating / 0.05 ?>
                                             <div class="current-product-rating" style="width: <?= $width ?>%"></div>
                                             <span class="rating"><?= $productRating ?></span>
                                         </div>
                                         <div class="product-footer">
                                             <span class="product-price" data-price="<?= $productPrice ?>"><?= $productPrice ?> ₽</span>
-                                            <button class="add-to-cart-btn show" type="button">В корзину</button>
-                                            <span class="added-notice">Товар уже в корзине</span>
+                                            <button class="add-to-cart-btn interactive-item show" type="button">В корзину</button>
+                                            <span class="added-notice interactive-item">Товар уже в корзине</span>
                                         </div>
                                     </div>
                                 </article>
