@@ -26,7 +26,7 @@
                 $results[] = requestExecutor($mysqli, $request, 'i', $id);
             }
 
-            $requestUser = "SELECT firstname, avatar FROM users WHERE id_user = ?";
+            $requestUser = "SELECT firstname, sex, avatar FROM users WHERE id_user = ?";
             foreach ($results[1] as $row) {
                 $rowData = [
                     'feedback' => htmlspecialchars($row['feedback']),
@@ -41,6 +41,7 @@
                 foreach ($userData as $user) {
                     $userRow = [
                         'firstname' => htmlspecialchars($user['firstname']),
+                        'sex' => htmlspecialchars($user['sex']),
                         'avatar' => htmlspecialchars($user['avatar'])
                     ];
 

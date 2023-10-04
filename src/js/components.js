@@ -63,11 +63,7 @@ const cartModal = (myCart, token) => {
             altFieldDateFormat: 'yyyy-MM-dd HH:mm'
         });
 
-        const phoneFields = document.querySelectorAll('.client-phone');
-        Inputmask({
-            "mask": "+7 (999) 999-99-99",
-            showMaskOnHover: false
-        }).mask(phoneFields);
+        phoneMask();
     }, 300);
 
     const cartItems = cartValues.map(item => `<article class="cart-item" data-product-id="${item.product_id}">
@@ -122,7 +118,7 @@ const cartModal = (myCart, token) => {
                                 <div class="label-keeper required">
                                     <label class="modal-label" for="client-phone">Телефон</label>
                                 </div>
-                                <input class="modal-field client-phone" id="client-phone" name="phone" type="text" required>
+                                <input class="modal-field client-phone" id="client-phone" name="phone" type="tel" required>
                             </div>
                             <div class="field-area">
                                 <div class="label-keeper">
@@ -240,6 +236,7 @@ const cartModal = (myCart, token) => {
     </div>`;
 }
 
+// Отзывы
 const stars = Array(5).fill(1);
 const productModal = id => {
     const path = '../../db/actions/SELECT/get_product_info.php';
@@ -283,7 +280,7 @@ const productModal = id => {
                             <span></span>`;
                 });
 
-                const noAvatarPath = 'src/img/header/user.svg';
+                const noAvatarPath = `src/img/header/${user.sex === 'Мужской' ? 'male' : 'female'}.svg`;
                 return `<article class="feedback-item">
                     <div class="feedback__header">
                         <div class="feedback__user-info">
@@ -330,58 +327,29 @@ const productModal = id => {
     return `<div class="modal-body product-info-modal flex"></div>`;
 }
 
-// Форма входа
-
-const authBody = `<article class="entry-body auth-body">
-    <div class="field-area">
-        <div class="label-keeper required">
-            <label class="modal-label" for="auth-login">Логин</label>
-        </div>
-        <input class="modal-field auth-login" id="auth-login" name="login" type="text" required>
-    </div>
-    <div class="field-area">
-        <div class="label-keeper required">
-            <label class="modal-label" for="auth-password">Пароль</label>
-        </div>
-        <input class="modal-field auth-password" id="auth-password" name="password" type="password" required>
-    </div>
-</article>`;
-
-const entryModal = () => {
-    return `<div class="modal-body entry-modal flex">
+// Форма входа/регистрации
+const entryModal = () => `<div class="modal-body entry-modal flex">
         <div class="tabs-wrapper auth">
             <div class="carret"></div>
             <button class="entry-modal-tab auth-tab bold-white" data-action="auth" type="button">Авторизация</button>
             <button class="entry-modal-tab reg-tab" data-action="reg" type="button">Регистрация</button>
         </div>
-        <form id="entry-form" action="db/actions/SELECT/auth.php" method="POST">
-            ${authBody}
-            <button class="confirm-btn" data-action="Авторизация" type="submit">Авторизоваться</button>
+        <form class="entry-form" id="modal-form" action="db/actions/SELECT/auth.php" method="POST">
+            <article class="entry-body auth-body">
+                <div class="field-area">
+                    <div class="label-keeper required">
+                        <label class="modal-label" for="auth-login">Логин</label>
+                    </div>
+                    <input class="modal-field auth-login" id="auth-login" name="login" type="text" required>
+                </div>
+                <div class="field-area">
+                    <div class="label-keeper required">
+                        <label class="modal-label" for="auth-password">Пароль</label>
+                    </div>
+                    <input class="modal-field auth-password" id="auth-password" name="password" type="password" required>
+                </div>
+                <button class="forgot-password-btn" type="button">Забыли пароль?</button>
+            </article>
+            <button class="confirm-btn action-confirm-btn" id="action-confirm-btn" data-action="Авторизация" type="submit">Авторизоваться</button>
         </form>
     </div>`;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

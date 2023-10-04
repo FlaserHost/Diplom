@@ -209,3 +209,11 @@ const defineModal = (modal, modalClass, modalBlock, maxWidth, modalBody) => {
     modalBlock.className = `modal-block ${maxWidth}`;
     modalBlock.insertAdjacentHTML('beforeend', modalBody);
 }
+
+const phoneMask = () => {
+    const phoneFields = body.querySelectorAll('input[type="tel"]');
+    Inputmask({
+        "mask": "+7 (999) 999-99-99",
+        showMaskOnHover: false
+    }).mask(phoneFields);
+}

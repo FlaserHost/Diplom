@@ -70,6 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // расшифровка меток
     const attributeLabels = {
+        login: 'Логин',
+        password: 'Пароль',
+        confirm_password: 'Подтвердите пароль',
         firstname: 'Имя',
         phone: 'Телефон',
         street: 'Улица',
@@ -204,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const modalData = [...new FormData(modalForm)];
 
             const requiredFields = document.querySelectorAll('input[required]');
-            const emailField = document.querySelector('.client-email');
+            const emailField = document.querySelector('input[type="email"]');
             const fieldsCollection = [...requiredFields, emailField];
 
             const dataAssoc = modalData.reduce((obj, field) => {
@@ -237,6 +240,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            const confirmed = dataAssoc['confirm_password'];
+
+            if (confirmed && confirmed !== '') {
+                const password = dataAssoc['password'];
+                const passwordMatch = password === confirmed;
+
+                if (!passwordMatch) {
+                    setTimeout(() => showNotification('warning', 'Пароли не совпадают'), delay);
+                    return false;
+                }
+            }
+
             validatedFields === requiredFieldAmount && modalForm.submit();
         }, // кнопка подтверждения заказа
         'add-to-cart-btn': e => addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper),
@@ -262,16 +277,93 @@ document.addEventListener('DOMContentLoaded', () => {
             const action = e.target.dataset.action;
             const parent = e.target.parentElement;
             const entryForm = parent.nextElementSibling;
-            parent.className = `tabs-wrapper ${action}`;
+            const entryBody = entryForm.querySelector('.entry-body');
+            const confirmBtn = entryForm.querySelector('#action-confirm-btn');
             const tabs = parent.querySelectorAll('.entry-modal-tab');
-            tabs.forEach(tab => tab.classList.toggle('bold-white'));
+            tabs.forEach(tab => tab.classList.remove('bold-white'));
+            e.target.classList.add('bold-white');
 
-            const url = {
-                'auth': 'db/actions/SELECT/auth.php',
-                'reg': 'db/actions/INSERT/reg.php'
+            const actions = {
+                'auth': {
+                    url: 'db/actions/SELECT/auth.php',
+                    btn_action: 'Авторизация',
+                    btn_name: 'Авторизоваться',
+                    body: `<article class="entry-body auth-body">
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="auth-login">Логин</label>
+                                    </div>
+                                    <input class="modal-field auth-login" id="auth-login" name="login" type="text" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="auth-password">Пароль</label>
+                                    </div>
+                                    <input class="modal-field auth-password" id="auth-password" name="password" type="password" required>
+                                </div>
+                                <button class="forgot-password-btn" type="button">Забыли пароль?</button>
+                            </article>`,
+                },
+                'reg': {
+                    url: 'db/actions/INSERT/reg.php',
+                    btn_action: 'Регистрация',
+                    btn_name: 'Зарегистрироваться',
+                    body: `<article class="entry-body reg-body">
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-login">Логин</label>
+                                    </div>
+                                    <input class="modal-field reg-login" id="reg-login" name="login" type="text" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-firstname">Имя</label>
+                                    </div>
+                                    <input class="modal-field reg-firstname" id="reg-firstname" name="firstname" type="text" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-phone">Телефон</label>
+                                    </div>
+                                    <input class="modal-field reg-phone" id="reg-phone" name="phone" type="tel" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper">
+                                        <label class="modal-label" for="reg-email">Email</label>
+                                    </div>
+                                    <input class="modal-field reg-email" id="reg-email" name="email" type="email">
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-password">Пароль</label>
+                                    </div>
+                                    <input class="modal-field reg-password" id="reg-password" name="password" type="password" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-confirm-password">Подтвердите пароль</label>
+                                    </div>
+                                    <input class="modal-field reg-confirm-password" id="reg-confirm-password" name="confirm_password" type="password" required>
+                                </div>
+                            </article>`
+                }
             };
 
-            entryForm.setAttribute('action', url[action]);
+            const parameters = actions[action];
+
+            if (!parent.classList.contains(action)) {
+                entryBody.remove();
+                entryForm.insertAdjacentHTML('afterbegin', actions[action].body);
+            }
+
+            parent.className = `tabs-wrapper ${action}`;
+
+            entryForm.setAttribute('action', parameters.url);
+            confirmBtn.dataset.action = parameters.btn_action;
+            confirmBtn.innerText = parameters.btn_name;
+            setFocusEffect(modal);
+
+            action === 'reg' && phoneMask();
         },
     };
 
@@ -474,29 +566,3 @@ document.addEventListener('DOMContentLoaded', () => {
         setFocusEffect(modal);
     });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
