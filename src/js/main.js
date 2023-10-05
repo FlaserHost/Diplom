@@ -81,7 +81,81 @@ document.addEventListener('DOMContentLoaded', () => {
         client_agreed: 'Я согласен'
     }
 
-    const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9-]+\.[A-Z]{2,4}$/i;
+    const minLoginLength = 3;
+    const maxLoginLength = 16;
+
+    const actions = {
+        auth: {
+            url: 'db/actions/SELECT/auth.php',
+            btn_action: 'Авторизация',
+            btn_name: 'Авторизоваться',
+            form_type: 'auth-form',
+            csrf_token: tokens['token-auth-user-modal'],
+            body: `<article class="entry-body auth-body">
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="auth-login">Логин</label>
+                                    </div>
+                                    <input class="modal-field auth-login" id="auth-login" name="login" type="text" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="auth-password">Пароль</label>
+                                    </div>
+                                    <input class="modal-field auth-password" id="auth-password" name="password" type="password" required>
+                                </div>
+                                <button class="forgot-password-btn" type="button">Забыли пароль?</button>
+                            </article>`,
+        },
+        reg: {
+            url: 'db/actions/INSERT/reg.php',
+            btn_action: 'Регистрация',
+            btn_name: 'Зарегистрироваться',
+            form_type: 'reg-form',
+            csrf_token: tokens['token-reg-modal'],
+            body: `<article class="entry-body reg-body">
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-login">Логин</label>
+                                    </div>
+                                    <input class="modal-field reg-login" id="reg-login" name="login" type="text" required minlength="${minLoginLength}" maxlength="${maxLoginLength}">
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-firstname">Имя</label>
+                                    </div>
+                                    <input class="modal-field reg-firstname" id="reg-firstname" name="firstname" type="text" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-phone">Телефон</label>
+                                    </div>
+                                    <input class="modal-field reg-phone" id="reg-phone" name="phone" type="tel" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper">
+                                        <label class="modal-label" for="reg-email">Email</label>
+                                    </div>
+                                    <input class="modal-field reg-email" id="reg-email" name="email" type="email">
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-password">Пароль</label>
+                                    </div>
+                                    <input class="modal-field reg-password" id="reg-password" name="password" type="password" required>
+                                </div>
+                                <div class="field-area">
+                                    <div class="label-keeper required">
+                                        <label class="modal-label" for="reg-confirm-password">Подтвердите пароль</label>
+                                    </div>
+                                    <input class="modal-field reg-confirm-password" id="reg-confirm-password" name="confirm_password" type="password" required>
+                                </div>
+                            </article>`,
+        }
+    };
+
+    const loginPattern = new RegExp(`^[a-zA-Z0-9_-]{${minLoginLength},${maxLoginLength}}$`);
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,4}$/i;
 
     // функции выполняемые при клике на элементы
     const clickActions = {
@@ -204,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'confirm-btn': e => {
             e.preventDefault();
             const modalForm = modal.querySelector('#modal-form');
+            const formType = modalForm.dataset.formType || '';
             const modalData = [...new FormData(modalForm)];
 
             const requiredFields = document.querySelectorAll('input[required]');
@@ -240,7 +315,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            const login = dataAssoc['login'];
             const confirmed = dataAssoc['confirm_password'];
+
+            if (
+                login
+                && formType === 'reg-form'
+                && login !== ''
+                && !loginPattern.test(login)
+            ) {
+                setTimeout(() => showNotification('warning', 'Неверный формат логина'), delay);
+                validatedFields--;
+            }
 
             if (confirmed && confirmed !== '') {
                 const password = dataAssoc['password'];
@@ -277,93 +363,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const action = e.target.dataset.action;
             const parent = e.target.parentElement;
             const entryForm = parent.nextElementSibling;
+            let formType;
+            const csrfInput = entryForm.children[0];
             const entryBody = entryForm.querySelector('.entry-body');
             const confirmBtn = entryForm.querySelector('#action-confirm-btn');
             const tabs = parent.querySelectorAll('.entry-modal-tab');
             tabs.forEach(tab => tab.classList.remove('bold-white'));
             e.target.classList.add('bold-white');
 
-            const actions = {
-                'auth': {
-                    url: 'db/actions/SELECT/auth.php',
-                    btn_action: 'Авторизация',
-                    btn_name: 'Авторизоваться',
-                    body: `<article class="entry-body auth-body">
-                                <div class="field-area">
-                                    <div class="label-keeper required">
-                                        <label class="modal-label" for="auth-login">Логин</label>
-                                    </div>
-                                    <input class="modal-field auth-login" id="auth-login" name="login" type="text" required>
-                                </div>
-                                <div class="field-area">
-                                    <div class="label-keeper required">
-                                        <label class="modal-label" for="auth-password">Пароль</label>
-                                    </div>
-                                    <input class="modal-field auth-password" id="auth-password" name="password" type="password" required>
-                                </div>
-                                <button class="forgot-password-btn" type="button">Забыли пароль?</button>
-                            </article>`,
-                },
-                'reg': {
-                    url: 'db/actions/INSERT/reg.php',
-                    btn_action: 'Регистрация',
-                    btn_name: 'Зарегистрироваться',
-                    body: `<article class="entry-body reg-body">
-                                <div class="field-area">
-                                    <div class="label-keeper required">
-                                        <label class="modal-label" for="reg-login">Логин</label>
-                                    </div>
-                                    <input class="modal-field reg-login" id="reg-login" name="login" type="text" required>
-                                </div>
-                                <div class="field-area">
-                                    <div class="label-keeper required">
-                                        <label class="modal-label" for="reg-firstname">Имя</label>
-                                    </div>
-                                    <input class="modal-field reg-firstname" id="reg-firstname" name="firstname" type="text" required>
-                                </div>
-                                <div class="field-area">
-                                    <div class="label-keeper required">
-                                        <label class="modal-label" for="reg-phone">Телефон</label>
-                                    </div>
-                                    <input class="modal-field reg-phone" id="reg-phone" name="phone" type="tel" required>
-                                </div>
-                                <div class="field-area">
-                                    <div class="label-keeper">
-                                        <label class="modal-label" for="reg-email">Email</label>
-                                    </div>
-                                    <input class="modal-field reg-email" id="reg-email" name="email" type="email">
-                                </div>
-                                <div class="field-area">
-                                    <div class="label-keeper required">
-                                        <label class="modal-label" for="reg-password">Пароль</label>
-                                    </div>
-                                    <input class="modal-field reg-password" id="reg-password" name="password" type="password" required>
-                                </div>
-                                <div class="field-area">
-                                    <div class="label-keeper required">
-                                        <label class="modal-label" for="reg-confirm-password">Подтвердите пароль</label>
-                                    </div>
-                                    <input class="modal-field reg-confirm-password" id="reg-confirm-password" name="confirm_password" type="password" required>
-                                </div>
-                            </article>`
-                }
-            };
-
             const parameters = actions[action];
 
             if (!parent.classList.contains(action)) {
                 entryBody.remove();
-                entryForm.insertAdjacentHTML('afterbegin', actions[action].body);
+                confirmBtn.insertAdjacentHTML('beforebegin', parameters.body);
             }
 
             parent.className = `tabs-wrapper ${action}`;
 
             entryForm.setAttribute('action', parameters.url);
+            csrfInput.value = parameters.csrf_token;
             confirmBtn.dataset.action = parameters.btn_action;
             confirmBtn.innerText = parameters.btn_name;
             setFocusEffect(modal);
 
-            action === 'reg' && phoneMask();
+            if (action === 'reg') {
+                formType = 'reg-form';
+                phoneMask();
+            } else {
+                formType = 'auth-form';
+            }
+
+            entryForm.dataset.formType = formType;
         },
     };
 
@@ -557,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // модальное окно авторизации/регистрации
     const entryBtn = document.getElementById('entry-btn');
     entryBtn.addEventListener('click', () => {
-        const modalBody = entryModal();
+        const modalBody = entryModal(actions.auth, tokens['token-auth-user-modal']);
         modalClass = 'align-center';
         maxWidth = 'modal-block-entry';
         body.style.overflow = 'hidden';
@@ -566,3 +596,33 @@ document.addEventListener('DOMContentLoaded', () => {
         setFocusEffect(modal);
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

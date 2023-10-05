@@ -328,28 +328,40 @@ const productModal = id => {
 }
 
 // Форма входа/регистрации
-const entryModal = () => `<div class="modal-body entry-modal flex">
+const entryModal = (entryOptions, token) => `<div class="modal-body entry-modal flex">
         <div class="tabs-wrapper auth">
             <div class="carret"></div>
             <button class="entry-modal-tab auth-tab bold-white" data-action="auth" type="button">Авторизация</button>
             <button class="entry-modal-tab reg-tab" data-action="reg" type="button">Регистрация</button>
         </div>
-        <form class="entry-form" id="modal-form" action="db/actions/SELECT/auth.php" method="POST">
-            <article class="entry-body auth-body">
-                <div class="field-area">
-                    <div class="label-keeper required">
-                        <label class="modal-label" for="auth-login">Логин</label>
-                    </div>
-                    <input class="modal-field auth-login" id="auth-login" name="login" type="text" required>
-                </div>
-                <div class="field-area">
-                    <div class="label-keeper required">
-                        <label class="modal-label" for="auth-password">Пароль</label>
-                    </div>
-                    <input class="modal-field auth-password" id="auth-password" name="password" type="password" required>
-                </div>
-                <button class="forgot-password-btn" type="button">Забыли пароль?</button>
-            </article>
+        <form class="entry-form" id="modal-form" data-form-type="${entryOptions.form_type}" action="db/actions/SELECT/auth.php" method="POST">
+            <input id="csrf_token" name="csrf_token" type="hidden" value="${token}">
+            ${entryOptions.body}
             <button class="confirm-btn action-confirm-btn" id="action-confirm-btn" data-action="Авторизация" type="submit">Авторизоваться</button>
         </form>
     </div>`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

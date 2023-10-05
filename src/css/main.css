@@ -90,6 +90,7 @@ textarea::-webkit-scrollbar {
 
 ::selection {
     background-color: #89C340;
+    color: #fff;
 }
 
 /* Header */
@@ -235,6 +236,9 @@ textarea::-webkit-scrollbar {
     line-height: 24px;
     font-weight: 600;
     font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .contacts-wrapper strong {
@@ -258,14 +262,34 @@ textarea::-webkit-scrollbar {
     width: 25px;
     height: 25px;
     border-radius: 50%;
+    background: no-repeat center / 15px;
 }
 
 .header__phone:before {
-    background: url('../img/header/phone.svg') no-repeat center / 15px;
+    background-image: url('../img/header/phone.svg');
 }
 
 .header__email:before {
-    background: url('../img/header/email.svg') no-repeat center / 15px;
+    background-image: url('../img/header/email.svg');
+}
+
+.header__phone:after,
+.header__email:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    width: 0;
+    height: 1.5px;
+    transition: width .3s;
+}
+
+.header__phone:hover:after,
+.header__email:hover:after {
+    width: 100%;
 }
 
 .cart-btn {
@@ -1100,7 +1124,7 @@ textarea::-webkit-scrollbar {
     border-radius: 6px;
     transition: .3s;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 17px;
 }
 
 .confirm-btn:hover,
