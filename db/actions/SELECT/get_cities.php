@@ -22,7 +22,7 @@
             $jsonData[$id] = $city['city'];
         }
 
-        $queryResult->free();
+        $queryResult->close();
         $mysqli->close();
 
         echo json_encode($jsonData);

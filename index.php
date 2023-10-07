@@ -50,8 +50,8 @@
         die("Ошибка выполнения SQL-запроса: $mysqli->error");
     }
 
-    $categoriesResult->free();
-    $productsResult->free();
+    $categoriesResult->close();
+    $productsResult->close();
     $mysqli->close();
 ?>
 <!DOCTYPE html>

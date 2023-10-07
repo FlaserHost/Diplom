@@ -22,7 +22,7 @@
             $dataArray[$id] = $district['district'];
         }
 
-        $queryResult->free();
+        $queryResult->close();
         $mysqli->close();
 
         echo json_encode($dataArray);

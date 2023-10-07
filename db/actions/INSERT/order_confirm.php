@@ -99,7 +99,7 @@
 
                     $mysqli->commit();
 
-                    $getMaxValue->free();
+                    $getMaxValue->close();
                     $mysqli->close();
                     unset($_SESSION['cartID'], $cartID);
 

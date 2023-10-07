@@ -161,6 +161,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // функции выполняемые при клике на элементы
     const clickActions = {
+        'add-to-cart-btn': e => addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper), // добавление товара в корзину
+        'clickable-rating': e => {
+            const parent = e.target.closest('.current-card');
+            const productID = {
+                id: parent.dataset.productId
+            };
+
+            modalBody = productModal(productID);
+            modalClass = 'align-start';
+            maxWidth = 'modal-product-info';
+            body.style.overflow = 'hidden';
+            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+        }, // открыть info о продукте
+        'back-to-showcase': () => {
+            const foundItems = document.querySelector('.found-items');
+            foundItems.remove();
+            showcaseChildren.forEach(item => item.removeAttribute('style'));
+            searchField.value = '';
+        }, // вернуться на витрину
+    };
+
+    const clickModalActions = {
         'count-btn': e => calculation(e, myCart), // увеличение/уменьшение числа товара внутри одной позиции
         'show-menu-btn': () => closeModalBtn.click(), // клие по кнопке "Посмотреть меню"
         'toggler-label': e => {
@@ -356,25 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             validatedFields === requiredFieldAmount && modalForm.submit();
         }, // кнопка подтверждения заказа
-        'add-to-cart-btn': e => addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper), // добавление товара в корзину
-        'clickable-rating': e => {
-            const parent = e.target.closest('.current-card');
-            const productID = {
-                id: parent.dataset.productId
-            };
-
-            modalBody = productModal(productID);
-            modalClass = 'align-start';
-            maxWidth = 'modal-product-info';
-            body.style.overflow = 'hidden';
-            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
-        }, // открыть info о продукте
-        'back-to-showcase': () => {
-            const foundItems = document.querySelector('.found-items');
-            foundItems.remove();
-            showcaseChildren.forEach(item => item.removeAttribute('style'));
-            searchField.value = '';
-        }, // вернуться на витрину
         'entry-modal-tab': e => {
             const action = e.target.dataset.action;
             const parent = e.target.parentElement;
@@ -411,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             entryForm.dataset.formType = formType;
         },
-    };
+    }
 
     // функции выполняемые при вводе
     const inputActions = {
@@ -520,6 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body.removeAttribute('style');
     });
 
+    modal.addEventListener('click', e => actionLaunch(e, clickModalActions)); // обработка ввода
     modal.addEventListener('input', e => actionLaunch(e, inputActions)); // обработка ввода
 
     // поиск по сайту
