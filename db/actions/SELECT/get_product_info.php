@@ -14,59 +14,53 @@
 
             $requests = [
                 'product' => "SELECT * FROM products WHERE id_product = ?",
-                'feedback' => "SELECT * FROM feedback WHERE id_product = ?"
+                'feedback' => "SELECT fb.*, users.*, sx.sex as user_sex
+                               FROM feedback as fb   
+                               JOIN users ON fb.id_user = users.id_user
+                               JOIN sex as sx ON users.id_sex = sx.id_sex
+                               WHERE fb.id_product = ?"
             ];
 
             $results = [];
-            $product = [];
-            $feedback = [];
-            $users = [];
-
-            foreach ($requests as $request) {
-                $results[] = requestExecutor($mysqli, $request, 'i', $id);
-            }
-
-            $requestUser = "SELECT firstname, sex, avatar FROM users WHERE id_user = ?";
-            foreach ($results[1] as $row) {
-                $rowData = [
-                    'feedback' => htmlspecialchars($row['feedback']),
-                    'id_user' => htmlspecialchars($row['id_user']),
-                    'rating' => htmlspecialchars($row['rating']),
-                    'datetime' => $row['feedback_datetime']
-                ];
-
-                $feedback['feedback'][] = $rowData;
-
-                $userData = requestExecutor($mysqli, $requestUser, 's', $row['id_user']);
-                foreach ($userData as $user) {
-                    $userRow = [
-                        'firstname' => htmlspecialchars($user['firstname']),
-                        'sex' => htmlspecialchars($user['sex']),
-                        'avatar' => htmlspecialchars($user['avatar'])
-                    ];
-
-                    $users['user'][] = $userRow;
-                }
+            foreach ($requests as $key => $request) {
+                $results[$key] = requestExecutor($mysqli, $request, 'i', $id);
             }
 
             $mysqli->close();
 
-            foreach ($results[0] as $row) {
-                $rowData = [
-                    'name' => htmlspecialchars($row['product_name']),
-                    'description' => htmlspecialchars($row['product_description']),
-                    'composition' => htmlspecialchars($row['product_composition']),
-                    'weight' => htmlspecialchars($row['product_weight']),
-                    'price' => htmlspecialchars($row['product_price']),
-                    'photo' => htmlspecialchars($row['product_photo']),
-                    'rating' => htmlspecialchars($row['product_rating'])
+            $productInfo = $results['product'][0];
+            $merged = [
+                'product' => [
+                    'name' => htmlspecialchars($productInfo['product_name']),
+                    'description' => htmlspecialchars($productInfo['product_description']),
+                    'composition' => htmlspecialchars($productInfo['product_composition']),
+                    'weight' => htmlspecialchars($productInfo['product_weight']),
+                    'price' => htmlspecialchars($productInfo['product_price']),
+                    'photo' => htmlspecialchars($productInfo['product_photo']),
+                    'rating' => htmlspecialchars($productInfo['product_rating'])
+                ],
+            ];
+
+            foreach ($results['feedback'] as $row) {
+                $allInfo = [
+                    'user' => [
+                        'firstname' => htmlspecialchars($row['firstname']),
+                        'sex' => htmlspecialchars($row['user_sex']),
+                        'avatar' => $row['avatar']
+                    ],
+                    'feedback' => [
+                        'feedback' => htmlspecialchars($row['feedback']),
+                        'rating' => htmlspecialchars($row['feedback_rating']),
+                        'datetime' => $row['feedback_datetime']
+                    ],
                 ];
 
-                $product['info'][] = $rowData;
+                foreach ($allInfo as $key => $array) {
+                    $merged[$key][] = $array;
+                }
             }
 
-            $obj = [...$product, ...$feedback, ...$users];
-            echo json_encode($obj);
+            echo json_encode($merged);
         }
     } else {
         echo 'Ошибка. Неверный метод запроса.';

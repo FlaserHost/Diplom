@@ -12,12 +12,12 @@
 
             if (!$mysqli->connect_error) {
                 $category = $searchData->category;
-                $product = "%{$searchData->product}%";
+                $product = "%$searchData->product%";
 
                 $categoryFilter = $category !== '0';
                 $filter = $categoryFilter ? "id_category = ? AND" : '';
 
-                $searchResponse = "SELECT * FROM products WHERE {$filter} product_name LIKE ?";
+                $searchResponse = "SELECT * FROM products WHERE $filter product_name LIKE ?";
 
                 if ($stmt = $mysqli->prepare($searchResponse)) {
                     if ($categoryFilter) {
@@ -48,17 +48,17 @@
 
                         echo json_encode($obj);
                     } else {
-                        echo "Ошибка выполнения запроса {$mysqli->error}";
+                        echo "Ошибка выполнения запроса $mysqli->error";
                     }
 
                     $stmt->close();
                 } else {
-                    echo "Ошибка запроса: {$mysqli->error}";
+                    echo "Ошибка запроса: $mysqli->error";
                 }
 
                 $mysqli->close();
             } else {
-                echo "Ошибка подключения: {$mysqli->connect_error}";
+                echo "Ошибка подключения: $mysqli->connect_error";
             }
         } else {
             echo 'Данные не переданы';

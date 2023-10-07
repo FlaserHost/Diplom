@@ -8,17 +8,22 @@
 
     if (!isset($_SESSION['csrf_tokens'])) {
         foreach ($csrfKeepersNames as $name) {
-            $csrfKeepers[$name] = generateCSRFToken();
+            try {
+                $csrfKeepers[$name] = generateRandomBytes(32);
+            } catch (Exception $e) {
+                die("Не удалось произвести генерацию токена: $e");
+            }
         }
 
         $_SESSION['csrf_tokens'] = $csrfKeepers;
     }
 
     /** @var $data */
+
     $mysqli = new mysqli(...$data);
 
     if ($mysqli->connect_error) {
-        die("Ошибка подключения к базе данных: " . $mysqli->connect_error);
+        die("Ошибка подключения к базе данных: $mysqli->connect_error");
     }
 
     $categoriesQuery = "SELECT * FROM categories";
@@ -42,7 +47,7 @@
             $categoriesNumbers[$category] = $product['id_category'];
         }
     } else {
-        die("Ошибка выполнения SQL-запроса: " . $mysqli->error);
+        die("Ошибка выполнения SQL-запроса: $mysqli->error");
     }
 
     $categoriesResult->free();
@@ -118,6 +123,7 @@
                     <span class="cart-items-amount">0</span>
                 </button>
             </div>
+            <button class="test"></button>
             <div class="entry-btn-wrapper">
                 <button class="entry-btn" id="entry-btn" type="button">Войти</button>
             </div>

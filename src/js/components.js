@@ -241,7 +241,7 @@ const stars = Array(5).fill(1);
 const productModal = id => {
     const path = '../../db/actions/SELECT/get_product_info.php';
     getRequestedData(path, id).then(data => {
-        const info = data.info[0];
+        const info = data.product;
         const width = info.rating / 0.05;
 
         const productInfo = `<section class="product-info-section">
@@ -285,7 +285,7 @@ const productModal = id => {
                     <div class="feedback__header">
                         <div class="feedback__user-info">
                             <figure>
-                                <img src="${user.avatar !== '' ? user.avatar : noAvatarPath}" alt="avatar">
+                                <img src="${user.avatar !== null ? user.avatar : noAvatarPath}" alt="avatar">
                             </figure>
                             <div class="name-time">
                                 <span class="feedback__username">${user.firstname}</span>
@@ -340,28 +340,3 @@ const entryModal = (entryOptions, token) => `<div class="modal-body entry-modal 
             <button class="confirm-btn action-confirm-btn" id="action-confirm-btn" data-action="Авторизация" type="submit">Авторизоваться</button>
         </form>
     </div>`;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

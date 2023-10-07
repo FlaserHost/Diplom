@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const minLoginLength = 3;
     const maxLoginLength = 16;
+    const minPasswordLength = 8;
+    const symbolsEnding = correctEnding('symbols', minPasswordLength);
 
     const actions = {
         auth: {
@@ -142,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="label-keeper required">
                                         <label class="modal-label" for="reg-password">Пароль</label>
                                     </div>
-                                    <input class="modal-field reg-password" id="reg-password" name="password" type="password" required>
+                                    <input class="modal-field reg-password" id="reg-password" name="password" type="password" required minlength="${minPasswordLength}">
                                 </div>
                                 <div class="field-area">
                                     <div class="label-keeper required">
@@ -281,9 +283,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const formType = modalForm.dataset.formType || '';
             const modalData = [...new FormData(modalForm)];
 
-            const requiredFields = document.querySelectorAll('input[required]');
+            let requiredFields = document.querySelectorAll('input[required]');
             const emailField = document.querySelector('input[type="email"]');
-            const fieldsCollection = [...requiredFields, emailField];
+
+            if (emailField) {
+                requiredFields = [...requiredFields, emailField];
+            }
 
             const dataAssoc = modalData.reduce((obj, field) => {
                 obj[field[0]] = field[1];
@@ -291,13 +296,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }, {});
 
             const requiredFieldAmount = dataAssoc.email === ''
-                ? requiredFields.length
-                : requiredFields.length + 1;
+                ? requiredFields.length - 1
+                : requiredFields.length;
 
             let validatedFields = 0;
             let delay = 0;
 
-            fieldsCollection.forEach(field => {
+            requiredFields.forEach(field => {
                 const fieldName = field.getAttribute('name');
                 const value = dataAssoc[fieldName];
 
@@ -316,11 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const login = dataAssoc['login'];
+            const password = dataAssoc['password'];
             const confirmed = dataAssoc['confirm_password'];
+            const isRegForm = formType === 'reg-form';
 
             if (
                 login
-                && formType === 'reg-form'
+                && isRegForm
                 && login !== ''
                 && !loginPattern.test(login)
             ) {
@@ -328,8 +335,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 validatedFields--;
             }
 
+            if (
+                password
+                && isRegForm
+                && password !== ''
+                && password.length < minPasswordLength
+            ) {
+                setTimeout(() => showNotification('warning', `Минимальная длина пароля ${minPasswordLength} симво${symbolsEnding}`), delay);
+                validatedFields--;
+            }
+
             if (confirmed && confirmed !== '') {
-                const password = dataAssoc['password'];
                 const passwordMatch = password === confirmed;
 
                 if (!passwordMatch) {
@@ -340,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             validatedFields === requiredFieldAmount && modalForm.submit();
         }, // кнопка подтверждения заказа
-        'add-to-cart-btn': e => addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper),
+        'add-to-cart-btn': e => addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper), // добавление товара в корзину
         'clickable-rating': e => {
             const parent = e.target.closest('.current-card');
             const productID = {
@@ -596,33 +612,3 @@ document.addEventListener('DOMContentLoaded', () => {
         setFocusEffect(modal);
     });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

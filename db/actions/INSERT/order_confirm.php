@@ -11,7 +11,7 @@
             $mysqli = new mysqli(...$data);
 
             if ($mysqli->connect_error) {
-                die("Произошла ошибка подключения: {$mysqli->connect_error}");
+                die("Произошла ошибка подключения: $mysqli->connect_error");
             }
 
             $requiredKeys = [
@@ -23,15 +23,9 @@
                 'client_agreed'
             ];
 
-            $completePOST = true;
-            $problemField = '';
-            foreach ($requiredKeys as $key) {
-                if (empty($_POST[$key])) {
-                    $completePOST = false;
-                    $problemField = $key;
-                    break;
-                }
-            }
+            $isValidPOST = POSTvalidator($requiredKeys);
+            $completePOST = $isValidPOST['completePOST'];
+            $problemField = $isValidPOST['problemField'];
 
             if ($completePOST) {
                 $orderData = $_POST;
@@ -79,12 +73,12 @@
                         ); // привязка параметров
 
                         if (!$stmt->execute()) {
-                            throw new Exception("Ошибка выполнения запроса: {$stmt->error}"); // вывод пользовательской ошибки при неудаче выполнения запроса
+                            throw new Exception("Ошибка выполнения запроса: $stmt->error"); // вывод пользовательской ошибки при неудаче выполнения запроса
                         }
 
                         $stmt->close();
                     } else {
-                        throw new Exception("Ошибка подготовки запроса: {$mysqli->error}");
+                        throw new Exception("Ошибка подготовки запроса: $mysqli->error");
                     }
 
                     // заполняем таблицу tmp_order (хранилище идентификаторов корзин)
@@ -96,7 +90,7 @@
                             $fillStmt->bind_param('ssi', $cartID, $userID, $itemID);
 
                             if (!$fillStmt->execute()) {
-                                throw new Exception("Ошибка выполнения запроса: {$fillStmt->error}");
+                                throw new Exception("Ошибка выполнения запроса: $fillStmt->error");
                             }
                         }
 
@@ -115,7 +109,7 @@
                     die("Ошибка: {$e->getMessage()}");
                 }
             } else {
-                die("Произошла ошибка. Переданы не все данные. Отсутствует: {$problemField}");
+                die("Произошла ошибка. Переданы не все данные. Отсутствует: $problemField");
             }
         } else {
             die('Ошибка. Токен не верен');

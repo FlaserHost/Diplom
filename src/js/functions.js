@@ -2,6 +2,7 @@
 
 const html = document.querySelector('html');
 const body = document.querySelector('body');
+
 const save = myCart => localStorage.myCart = JSON.stringify(Array.from(myCart.values()));
 
 const visibilityToggler = id => {
@@ -102,7 +103,8 @@ const calculation = (e, myCart) => {
 const correctEnding = (item, amount) => {
     const endings = {
         'cart': ['ров', 'р', 'ра'],
-        'match': ['ний', 'ние', 'ния']
+        'match': ['ний', 'ние', 'ния'],
+        'symbols': ['лов', 'л', 'ла'],
     };
 
     const [elevenNineteen, one, twoFour] = endings[item];
