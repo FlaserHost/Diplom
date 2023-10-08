@@ -123,7 +123,6 @@
                     <span class="cart-items-amount">0</span>
                 </button>
             </div>
-            <button class="test"></button>
             <div class="entry-btn-wrapper">
                 <button class="entry-btn" id="entry-btn" type="button">Войти</button>
             </div>

@@ -14,10 +14,9 @@
 
             $requests = [
                 'product' => "SELECT * FROM products WHERE id_product = ?",
-                'feedback' => "SELECT fb.*, users.*, sx.sex as user_sex
+                'feedback' => "SELECT fb.*, users.*
                                FROM feedback as fb   
                                JOIN users ON fb.id_user = users.id_user
-                               JOIN sex as sx ON users.id_sex = sx.id_sex
                                WHERE fb.id_product = ?"
             ];
 
@@ -45,7 +44,7 @@
                 $allInfo = [
                     'user' => [
                         'firstname' => htmlspecialchars($row['firstname']),
-                        'sex' => htmlspecialchars($row['user_sex']),
+                        'id_sex' => htmlspecialchars($row['id_sex']),
                         'avatar' => $row['avatar']
                     ],
                     'feedback' => [

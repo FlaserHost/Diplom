@@ -238,6 +238,11 @@ const cartModal = (myCart, token) => {
 
 // Отзывы
 const stars = Array(5).fill(1);
+const sex = {
+    1: 'male',
+    2: 'female',
+    3: 'neutral'
+}
 const productModal = id => {
     const path = '../../db/actions/SELECT/get_product_info.php';
     getRequestedData(path, id).then(data => {
@@ -280,7 +285,7 @@ const productModal = id => {
                             <span></span>`;
                 });
 
-                const noAvatarPath = `src/img/header/${user.sex === 'Мужской' ? 'male' : 'female'}.svg`;
+                const noAvatarPath = `src/img/header/${sex[user.id_sex]}.svg`;
                 return `<article class="feedback-item">
                     <div class="feedback__header">
                         <div class="feedback__user-info">

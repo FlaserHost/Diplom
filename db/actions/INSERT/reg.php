@@ -59,6 +59,8 @@
 
                     $stmt->close();
                     $mysqli->close();
+
+                    header('Location: ../../../index.php');
                 } else {
                     die('Не удалось подготовить запрос');
                 }
