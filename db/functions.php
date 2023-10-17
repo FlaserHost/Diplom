@@ -13,17 +13,17 @@
 
     function requestExecutor($connection, $request, $type, $id) {
         $rows = '';
-        if ($smtp = $connection->prepare($request)) {
-            $smtp->bind_param($type, $id);
+        if ($stmt = $connection->prepare($request)) {
+            $stmt->bind_param($type, $id);
 
-            if ($smtp->execute()) {
-                $result = $smtp->get_result();
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
                 $rows = $result->fetch_all(MYSQLI_ASSOC);
             } else {
                 die;
             }
 
-            $smtp->close();
+            $stmt->close();
         }
 
         return $rows;

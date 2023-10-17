@@ -1,7 +1,7 @@
 <?php
     $domain = 'localhost';
     $user = 'FlaserHost';
-    $password = 'lcfdb';
+    $password = 'diplom';
     $dbname = 'diplom';
 
     $data = [$domain, $user, $password, $dbname];

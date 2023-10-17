@@ -615,4 +615,11 @@ document.addEventListener('DOMContentLoaded', () => {
         defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
         setFocusEffect(modal);
     });
+
+    // убрать оповещение об успешной регистрации
+    const regNotice = body.querySelector('.register-complete');
+    if (regNotice) {
+        setTimeout(() => regNotice.classList.add('opacity'), 2000);
+        setTimeout(() => regNotice.remove(), 2500);
+    }
 });

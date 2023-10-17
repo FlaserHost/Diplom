@@ -4,5 +4,10 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="swiper" level="application" />
+    <orderEntry type="library" name="@fancyapps/ui" level="application" />
+    <orderEntry type="library" name="air-datepicker" level="application" />
+    <orderEntry type="library" name="jquery.inputmask" level="application" />
+    <orderEntry type="library" name="noty" level="application" />
   </component>
 </module>

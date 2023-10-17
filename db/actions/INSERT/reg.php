@@ -27,27 +27,21 @@
             $problemField = $isValidPOST['problemField'];
 
             if ($completePOST) {
-                try {
-                    $salt = generateRandomBytes(16);
-                } catch (Exception $e) {
-                    die("Ошибка генерации: $e");
-                }
-
                 $clientData = $_POST;
                 $authUserToken = random_token();
                 $_SESSION['auth_user_token'] = $authUserToken;
-                $saltedPassword = $clientData['password'] . $salt;
-                $hashedPassword = password_hash($saltedPassword, PASSWORD_BCRYPT);
 
-                $registrationResponse = "INSERT INTO users (id_user, login, password, salt, firstname, phone, email) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                $password = $clientData['password'];
+                $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+                $registrationResponse = "INSERT INTO users (id_user, login, password_hash, firstname, phone, email) VALUES (?, ?, ?, ?, ?, ?)";
 
                 if ($stmt = $mysqli->prepare($registrationResponse)) {
                     $stmt->bind_param(
-                        'sssssss',
+                        'ssssss',
                         $authUserToken,
                         $clientData['login'],
                         $hashedPassword,
-                        $salt,
                         $clientData['firstname'],
                         $clientData['phone'],
                         $clientData['email']
@@ -60,6 +54,7 @@
                     $stmt->close();
                     $mysqli->close();
 
+                    $_SESSION['register_complete'] = true;
                     header('Location: ../../../index.php');
                 } else {
                     die('Не удалось подготовить запрос');

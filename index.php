@@ -75,6 +75,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js"></script>
 </head>
 <body>
+    <?php if (isset($_SESSION['register_complete'])): ?>
+        <div class="register-complete">
+            <span>Вы успешно зарегистрировались</span>
+        </div>
+    <?php unset($_SESSION['register_complete']) ?>
+    <?php endif ?>
     <section class="modal">
         <div class="modal-block">
             <button class="close-modal-btn" id="close-modal-btn" type="button"></button>
@@ -216,6 +222,7 @@
         <?php endforeach ?>
     </div>
     <script>
+        <?php unset($_SESSION['auth_user_token']) ?>
         <?php if (isset($_SESSION['auth_user_token'])): ?>
             localStorage.auth_token = '<?= $_SESSION['auth_user_token'] ?>';
         <?php else: ?>
