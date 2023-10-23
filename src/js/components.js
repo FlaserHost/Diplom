@@ -345,3 +345,8 @@ const entryModal = (entryOptions, token) => `<div class="modal-body entry-modal 
             <button class="confirm-btn action-confirm-btn" id="action-confirm-btn" data-action="Авторизация" type="submit">Авторизоваться</button>
         </form>
     </div>`;
+
+const userProfileModal = csrf_token => {
+    const path = '../../db/actions/SELECT/user_info.php';
+    getRequestedData(path, { csrf_token }).then(data => console.log(data));
+}

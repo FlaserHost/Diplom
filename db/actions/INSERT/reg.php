@@ -29,20 +29,21 @@
             if ($completePOST) {
                 $clientData = $_POST;
                 $authUserToken = random_token();
-                $_SESSION['auth_user_token'] = $authUserToken;
 
                 $password = $clientData['password'];
                 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-                $registrationResponse = "INSERT INTO users (id_user, login, password_hash, firstname, phone, email) VALUES (?, ?, ?, ?, ?, ?)";
+                $registrationResponse = "INSERT INTO users (id_user, login, password_hash, firstname, id_sex, phone, email) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
+                $id_sex = 3;
                 if ($stmt = $mysqli->prepare($registrationResponse)) {
                     $stmt->bind_param(
-                        'ssssss',
+                        'ssssiss',
                         $authUserToken,
                         $clientData['login'],
                         $hashedPassword,
                         $clientData['firstname'],
+                        $id_sex,
                         $clientData['phone'],
                         $clientData['email']
                     );
@@ -54,7 +55,17 @@
                     $stmt->close();
                     $mysqli->close();
 
+                    $authUserToken = random_token();
                     $_SESSION['register_complete'] = true;
+
+                    $userData = [
+                        'token' => $authUserToken,
+                        'login' => $clientData['login'],
+                        'sex' => 'neutral'
+                    ];
+
+                    $_SESSION['auth_user'] = $userData;
+
                     header('Location: ../../../index.php');
                 } else {
                     die('Не удалось подготовить запрос');
@@ -64,5 +75,5 @@
             }
         }
     } else {
-        die('Некорректные параметры запроса');
+        die('Некорректный метод запроса');
     }

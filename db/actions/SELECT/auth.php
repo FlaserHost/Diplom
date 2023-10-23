@@ -4,7 +4,9 @@
     /** @var $data */
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if ($_POST['csrf_token'] === $_SESSION['csrf_tokens']['auth-user-modal']) {
+        $customs = json_decode(file_get_contents('php://input'));
+
+        if ($customs->csrf_token === $_SESSION['csrf_tokens']['auth-user-modal']) {
             require_once '../../access/access.php';
             require_once '../../functions.php';
 
@@ -14,20 +16,10 @@
                 die("Произошла ошибка подключения: $mysqli->connect_error");
             }
 
-            $requiredKeys = [
-                'login',
-                'password'
-            ];
+            if ($customs) {
+                $login = $customs->login;
 
-            $isValidPOST = POSTvalidator($requiredKeys);
-            $completePOST = $isValidPOST['completePOST'];
-            $problemField = $isValidPOST['problemField'];
-
-            if ($completePOST) {
-                $clientData = $_POST;
-                $login = $clientData['login'];
-
-                $request = "SELECT password_hash FROM users WHERE login = ?";
+                $request = "SELECT login, id_sex, password_hash, id_user FROM users WHERE login = ?";
 
                 if ($stmt = $mysqli->prepare($request)) {
                     $stmt->bind_param('s', $login);
@@ -40,23 +32,44 @@
                     $authData = $authResult->fetch_all(MYSQLI_ASSOC);
 
                     $stmt->close();
+                    $mysqli->close();
 
-                    $rowResult = $authData[0];
-                    $entered_password = $clientData['password'];
-                    $stored_password = $rowResult['password_hash'];
+                    $errorOutput = 0;
 
-                    if (password_verify($entered_password, $stored_password)) {
-                        echo 'Пароль верный';
+                    if (isset($authData[0])) {
+                        $rowResult = $authData[0];
+                        $entered_password = $customs->password;
+                        $stored_password = $rowResult['password_hash'];
+
+                        if (password_verify($entered_password, $stored_password)) {
+                            $_SESSION['auth_user_token'] = $rowResult['id_user'];
+
+                            $sexClasses = [
+                                1 => 'male',
+                                2 => 'female',
+                                3 => 'neutral'
+                            ];
+
+                            $userData = [
+                                'token' => $rowResult['id_user'],
+                                'login' => $rowResult['login'],
+                                'sex' => $sexClasses[$rowResult['id_sex']]
+                            ];
+
+                            $_SESSION['auth_user'] = $userData;
+
+                            echo json_encode($userData);
+                        } else {
+                            echo $errorOutput;
+                        }
                     } else {
-                        echo 'Пароль неверный';
+                        echo $errorOutput;
                     }
                 } else {
                     die("Ошибка подготовки запроса: $stmt->error");
                 }
-            } else {
-                die("Произошла ошибка. Переданы не все данные. Отсутствует: $problemField");
             }
         }
     } else {
-        die('Ошибка запроса');
+        die('Ошибка метода запроса');
     }

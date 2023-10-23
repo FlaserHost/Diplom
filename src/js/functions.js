@@ -36,7 +36,7 @@ const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
 
     e.target.classList.remove('show');
     children[1].querySelector('.added-notice').classList.add('show');
-    cartItemsAmount.innerText = myCart.size;
+    cartItemsAmount.forEach(amount => amount.innerText = myCart.size);
 
     const impulse = pulse();
     cartBtnWrapper.insertAdjacentElement('afterbegin', impulse);
@@ -132,13 +132,35 @@ const pulse = () => {
     return pulse;
 }
 
+const removeLoginNotify = modal => {
+    const notifyExist = modal.querySelector('.login-notify');
+    notifyExist && notifyExist.remove();
+}
+
 const setFocusEffect = modal => {
     const modalFields = modal.querySelectorAll('.modal-field');
     modalFields.forEach(field => {
         field.addEventListener('focus', e => e.target.parentElement.classList.add('focused'));
         field.addEventListener('blur', e => {
             if (e.target.value === '') {
+                removeLoginNotify(modal);
+
                 e.target.parentElement.classList.remove('focused');
+                return false;
+            }
+
+            if (e.target.classList.contains('reg-login')) {
+                const login = e.target.value;
+                const path = '../../db/actions/SELECT/login_check.php';
+                getRequestedData(path, { login }).then(data => {
+                    const fieldArea = modal.querySelector('.reg-login-field-area');
+                    removeLoginNotify(modal);
+
+                    const [notifyText, notifyStatus] = !data ? ['Логин свободен', 'free'] : ['Логин занят', 'busy'];
+                    const notify = `<span class="login-notify ${notifyStatus}">${notifyText}</span>`;
+
+                    fieldArea.insertAdjacentHTML('beforeend', notify);
+                });
             }
         });
     });

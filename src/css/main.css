@@ -16,6 +16,10 @@ html, body {
     min-height: 100vh;
 }
 
+body {
+    position: relative;
+}
+
 a {
     text-decoration: none;
     display: block;
@@ -348,19 +352,71 @@ textarea::-webkit-scrollbar {
     margin-left: 25px;
 }
 
-.entry-btn {
-    width: 100px;
-    height: 100%;
-    padding-left: 40px;
-    font-size: 16px;
+.mobile-entry-btn,
+.entry-btn-img {
     background: url('../img/header/male.svg') no-repeat left center / contain;
+}
+
+.entry-btn {
+    width: 134px;
+    height: 100%;
+    padding-left: 20px;
+    font-size: 16px;
     cursor: pointer;
-    transition: .3s;
+    transition: color .3s;
+    display: flex;
+    align-items: center;
 }
 
 .entry-btn:hover {
     color: #89C340;
+}
+
+.entry-btn-img {
+    width: 40px;
+    height: 100%;
+    transition: .3s;
+    border-radius: 50%;
+    background-color: #fff;
+    margin-right: 11px;
+    pointer-events: none;
+}
+
+.entry-btn:hover > .entry-btn-img {
+    background-color: transparent;
+}
+
+.entry-btn:hover > .entry-btn-img,
+.entry-btn:hover > .entry-btn-img.male {
     background-image: url('../img/header/male-hovered.svg');
+}
+
+.entry-btn:hover > .entry-btn-img.female {
+    background-image: url('../img/header/female-hovered.svg');
+}
+
+.entry-btn:hover > .entry-btn-img.neutral {
+    background-color: #89C340;
+    border: 2px solid #89C340;
+    transition: background-image .3s;
+    background-image: url('../img/header/neutral-hovered.svg');
+}
+
+.male {
+    background-image: url('../img/header/male.svg');
+}
+
+.female {
+    background-image: url('../img/header/female.svg');
+}
+
+.neutral {
+    background-image: url('../img/header/neutral.svg');
+}
+
+label[for="burger-box"],
+.slide-panel {
+    display: none;
 }
 
 /* main slider */
@@ -1069,6 +1125,7 @@ textarea::-webkit-scrollbar {
     color: #fff;
     padding-left: 30px;
     cursor: pointer;
+    display: block;
 }
 
 .client-agreed-label:before {
@@ -1403,10 +1460,24 @@ textarea::-webkit-scrollbar {
     text-align: center;
 }
 
+.login-notify {
+    position: absolute;
+    display: block;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 15px;
+    font-size: 16px;
+}
+
 /* технические стили */
 
-.active {
+.active,
+.free {
     color: #89C340;
+}
+
+.busy {
+    color: #FC4136;
 }
 
 .modal-block-empty {

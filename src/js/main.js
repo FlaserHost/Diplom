@@ -1,7 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const cartItemsAmount = body.querySelector('.cart-items-amount');
+    const cartItemsAmount = body.querySelectorAll('.cart-items-amount');
     const hiddenTokens = body.querySelectorAll('.token');
     const myCart = new Map();
 
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
             itemArticle.querySelector('.added-notice').classList.add('show');
         });
 
-        cartItemsAmount.innerText = myCart.size;
+        cartItemsAmount.forEach(amount => amount.innerText = myCart.size);
     }
 
     // mini functions
@@ -116,11 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
             form_type: 'reg-form',
             csrf_token: tokens['token-reg-modal'],
             body: `<article class="entry-body reg-body">
-                                <div class="field-area">
+                                <div class="field-area reg-login-field-area">
                                     <div class="label-keeper required">
                                         <label class="modal-label" for="reg-login">Логин</label>
                                     </div>
-                                    <input class="modal-field reg-login" id="reg-login" name="login" type="text" required minlength="${minLoginLength}" maxlength="${maxLoginLength}">
+                                    <input class="modal-field reg-login" id="reg-login" name="login" type="text" minlength="${minLoginLength}" maxlength="${maxLoginLength}" autocomplete="off" required>
                                 </div>
                                 <div class="field-area">
                                     <div class="label-keeper required">
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="label-keeper required">
                                         <label class="modal-label" for="reg-password">Пароль</label>
                                     </div>
-                                    <input class="modal-field reg-password" id="reg-password" name="password" type="password" required minlength="${minPasswordLength}">
+                                    <input class="modal-field reg-password" id="reg-password" name="password" type="password" minlength="${minPasswordLength}" required>
                                 </div>
                                 <div class="field-area">
                                     <div class="label-keeper required">
@@ -180,6 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
             showcaseChildren.forEach(item => item.removeAttribute('style'));
             searchField.value = '';
         }, // вернуться на витрину
+        'show-slide-panel': e => {
+            const slidePanel = e.target.nextElementSibling;
+
+            !slidePanel.hasAttribute('style')
+                ? slidePanel.style.right = '-20px'
+                : slidePanel.removeAttribute('style');
+        }, // бургер кнопка
     };
 
     const clickModalActions = {
@@ -332,10 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => showNotification('warning', `Поле "${attributeLabels[fieldName]}" не заполнено`), delay);
                     delay += 200;
                 } else if (fieldName === 'phone' && value.indexOf('_') !== -1) {
-                    setTimeout(() => showNotification('warning', 'Номер телефона введен не корректно'), delay);
+                    setTimeout(() => showNotification('error', 'Номер телефона введен не корректно'), delay);
                     delay += 200;
                 } else if (fieldName === 'email' && value !== '' && !emailPattern.test(value)) {
-                    setTimeout(() => showNotification('warning', 'Email не корректен'), delay);
+                    setTimeout(() => showNotification('error', 'Email не корректен'), delay);
                     delay += 200;
                 } else {
                     validatedFields++;
@@ -347,16 +354,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const confirmed = dataAssoc['confirm_password'];
             const isRegForm = formType === 'reg-form';
 
+            // проверка на существование логина и его формат
             if (
                 login
                 && isRegForm
                 && login !== ''
-                && !loginPattern.test(login)
             ) {
-                setTimeout(() => showNotification('warning', 'Неверный формат логина'), delay);
-                validatedFields--;
+                if (loginPattern.test(login)) {
+                    const notify = modal.querySelector('.login-notify.busy');
+                    if (notify) {
+                        setTimeout(() => showNotification('error', 'Введенный логин уже существует'), delay);
+                        validatedFields--;
+                    }
+                } else {
+                    setTimeout(() => showNotification('error', 'Неверный формат логина'), delay);
+                    validatedFields--;
+                }
             }
 
+            // проверка длины пароля
             if (
                 password
                 && isRegForm
@@ -367,17 +383,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 validatedFields--;
             }
 
+            // проверка совпадения пароля с подтверждением
             if (confirmed && confirmed !== '') {
                 const passwordMatch = password === confirmed;
 
                 if (!passwordMatch) {
-                    setTimeout(() => showNotification('warning', 'Пароли не совпадают'), delay);
+                    setTimeout(() => showNotification('error', 'Пароли не совпадают'), delay);
                     return false;
                 }
             }
 
-            validatedFields === requiredFieldAmount && modalForm.submit();
-        }, // кнопка подтверждения заказа
+            if (validatedFields === requiredFieldAmount) {
+                if (isRegForm) {
+                    modalForm.submit();
+                } else {
+                    const path = modalForm.getAttribute('action');
+                    const csrf_token = modalForm.children[0].value;
+                    const dataObj = { csrf_token, login, password };
+                    getRequestedData(path, dataObj).then(data => {
+                        +data.good_auth === 1 ? location.reload() : showNotification('error', 'Не верно введен логин или пароль');
+                    });
+                }
+            }
+        }, // кнопка подтверждения модального окна
         'entry-modal-tab': e => {
             const action = e.target.dataset.action;
             const parent = e.target.parentElement;
@@ -422,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'client-comment': e => {
             e.target.style.height = 'auto';
             e.target.style.height = `${e.target.scrollHeight + 1.33}px`;
-        } // ввод в поле комментария
+        },  // ввод в поле комментария
     };
 
     // делегирование событий на body
@@ -442,9 +470,10 @@ document.addEventListener('DOMContentLoaded', () => {
         li.addEventListener('click', e => {
             e.stopPropagation();
 
+            const id = e.target.dataset.id;
             selectedCategory.innerText = e.target.innerText;
-            selectedCategory.dataset.id = e.target.dataset.id;
-            hiddenSelectedCategory.value = e.target.dataset.id;
+            selectedCategory.dataset.id = id;
+            hiddenSelectedCategory.value = id;
 
             wrapperZeroHeight(listWrapper);
         });
@@ -482,37 +511,73 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('scroll', categoryDetector);
-    document.addEventListener('resize', categoryDetector);
+    window.addEventListener('resize', categoryDetector);
+
+    const header = body.querySelector('.page-header');
+    const mainContent = body.querySelector('.main-content');
+    const itemsCategories = body.querySelector('.items-categories');
+    const modal = body.querySelector('.modal');
+
+    const labelsChange = () => {
+        const house = modal.querySelector('label[for="client-house-number"]');
+
+        if (house) {
+            const street = modal.querySelector('label[for="client-street"]');
+            const flat = modal.querySelector('label[for="client-flat"]');
+            const entrance = modal.querySelector('label[for="client-entrance"]');
+            const labels = [street, house, flat, entrance];
+
+            const [streetText, houseText, flatText, entranceText] = window.innerWidth <= 715
+                ? ['Улица', 'Дом', 'Кв.', 'Под.']
+                : ['Укажите улицу', 'Номер дома', '№ квартиры/офиса', 'Подъезд'];
+
+            const preparedText = [streetText, houseText, flatText, entranceText];
+            labels.forEach((label, index) => label.innerText = preparedText[index]);
+        }
+    }
+
+    const autoHeight = () => {
+        const headerHeight = header.getBoundingClientRect().height;
+        mainContent.style.marginTop = `${headerHeight}px`;
+        itemsCategories.style.top = `${headerHeight}px`;
+        labelsChange();
+    }
+
+    autoHeight();
+    window.addEventListener('resize', autoHeight);
 
     // Модальное окно
-    const modal = body.querySelector('.modal');
     const modalBlock = body.querySelector('.modal-block');
     let modalBody;
     let maxWidth;
     let modalClass;
 
-    const cartBtn = document.getElementById('cart-btn');
-    cartBtn.addEventListener('click', e => {
-        e.target.classList.remove('flex');
-        body.style.overflow = 'hidden';
+    const cartBtns = body.querySelectorAll('.cabt');
+    cartBtns.forEach(cartBtn => {
+        cartBtn.addEventListener('click', e => {
+            e.target.classList.remove('flex');
+            body.style.overflow = 'hidden';
 
-        if (myCart.size !== 0) {
-            modalClass = 'align-start';
-            maxWidth = 'modal-block-cart';
+            if (myCart.size !== 0) {
+                modalClass = 'align-start';
+                maxWidth = 'modal-block-cart';
 
-            modalBody = cartModal(myCart, tokens['token-cart-modal']);
-        } else {
-            modalClass = 'align-center';
-            maxWidth = 'modal-block-empty';
+                modalBody = cartModal(myCart, tokens['token-cart-modal']);
+            } else {
+                modalClass = 'align-center';
+                maxWidth = 'modal-block-empty';
 
-            modalBody = emptyCart();
-        }
+                modalBody = emptyCart();
+            }
 
-        defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
 
-        if (maxWidth !== 'modal-block-empty') {
-            setFocusEffect(modal);
-        }
+            labelsChange();
+
+            if (maxWidth !== 'modal-block-empty') {
+                setFocusEffect(modal);
+            }
+        });
     });
 
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -605,15 +670,21 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     // модальное окно авторизации/регистрации
-    const entryBtn = document.getElementById('entry-btn');
-    entryBtn.addEventListener('click', () => {
-        const modalBody = entryModal(actions.auth, tokens['token-auth-user-modal']);
-        modalClass = 'align-center';
-        maxWidth = 'modal-block-entry';
-        body.style.overflow = 'hidden';
+    const entryBtns = body.querySelectorAll('.enbt');
+    entryBtns.forEach(entryBtn => {
+        entryBtn.addEventListener('click', e => {
+            if (!e.target.classList.contains('auth_user')) {
+                const modalBody = entryModal(actions.auth, tokens['token-auth-user-modal']);
+                modalClass = 'align-center';
+                maxWidth = 'modal-block-entry';
+                body.style.overflow = 'hidden';
 
-        defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
-        setFocusEffect(modal);
+                defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+                setFocusEffect(modal);
+            } else {
+                userProfileModal(tokens['token-user-profile-modal']);
+            }
+        });
     });
 
     // убрать оповещение об успешной регистрации

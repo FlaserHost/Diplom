@@ -3,7 +3,7 @@
     require_once 'db/access/access.php';
     require_once 'db/functions.php';
 
-    $csrfKeepersNames = ['cart-modal', 'auth-modal', 'reg-modal', 'auth-user-modal'];
+    $csrfKeepersNames = ['cart-modal', 'auth-modal', 'reg-modal', 'auth-user-modal', 'user-profile-modal'];
     $csrfKeepers = [];
 
     if (!isset($_SESSION['csrf_tokens'])) {
@@ -53,6 +53,17 @@
     $categoriesResult->close();
     $productsResult->close();
     $mysqli->close();
+
+    $auth_user = isset($_SESSION['auth_user']);
+    $entryBtnTitle = 'Войти';
+    $entryBtnSex = '';
+    $sex = '';
+
+    if ($auth_user) {
+        $entryBtnTitle = $_SESSION['auth_user']['login'];
+        $sex = $_SESSION['auth_user']['sex'];
+        $entryBtnSex = 'auth_user';
+    }
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -68,6 +79,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css">
     <link rel="stylesheet" href="src/css/main.css">
+    <link rel="stylesheet" href="src/css/adaptive.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.js"></script>
@@ -81,6 +93,13 @@
         </div>
     <?php unset($_SESSION['register_complete']) ?>
     <?php endif ?>
+    <script>
+        <?php if ($auth_user): ?>
+            localStorage.auth_user_token = '<?= $_SESSION['auth_user']['token'] ?>';
+        <?php else: ?>
+            localStorage.removeItem('auth_user_token');
+        <?php endif ?>
+    </script>
     <section class="modal">
         <div class="modal-block">
             <button class="close-modal-btn" id="close-modal-btn" type="button"></button>
@@ -124,13 +143,31 @@
                 <a class="header__email" href="mailto:flaserhost@yandex.ru">flaserhost@yandex.ru</a>
             </div>
             <div class="cart-btn-wrapper">
-                <button class="cart-btn" id="cart-btn">
+                <button class="cabt cart-btn">
                     <span class="cart-btn-title">Корзина</span>
                     <span class="cart-items-amount">0</span>
                 </button>
             </div>
             <div class="entry-btn-wrapper">
-                <button class="entry-btn" id="entry-btn" type="button">Войти</button>
+                <button class="enbt entry-btn <?= $entryBtnSex ?>" type="button">
+                    <div class="entry-btn-img <?= $sex ?>"></div>
+                    <?= $entryBtnTitle ?>
+                </button>
+            </div>
+            <label class="show-slide-panel" for="burger-box">
+                <input class="burger-box" id="burger-box" type="checkbox">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+            <div class="slide-panel">
+                <button class="cabt mobile-cart-btn" type="button">
+                    <span class="mobile-cart-btn-title">Корзина</span>
+                    <span class="cart-items-amount">0</span>
+                </button>
+                <button class="enbt mobile-entry-btn <?= "$entryBtnSex $sex" ?>" type="button">
+                    <span class="mobile-entry-btn-title"><?= $entryBtnTitle ?></span>
+                </button>
             </div>
         </div>
     </header>
@@ -221,14 +258,6 @@
             <input class="token" id="token-<?= $key ?>" type="hidden" value="<?= $token ?>">
         <?php endforeach ?>
     </div>
-    <script>
-        <?php unset($_SESSION['auth_user_token']) ?>
-        <?php if (isset($_SESSION['auth_user_token'])): ?>
-            localStorage.auth_token = '<?= $_SESSION['auth_user_token'] ?>';
-        <?php else: ?>
-            localStorage.removeItem('auth_token');
-        <?php endif ?>
-    </script>
     <script src="src/js/functions.js"></script>
     <script src="src/js/components.js"></script>
     <script src="src/js/main.js"></script>
