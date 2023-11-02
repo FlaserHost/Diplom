@@ -8,7 +8,6 @@
 
         if ($customs->csrf_token === $_SESSION['csrf_tokens']['auth-user-modal']) {
             require_once '../../access/access.php';
-            require_once '../../functions.php';
 
             $mysqli = new mysqli(...$data);
 

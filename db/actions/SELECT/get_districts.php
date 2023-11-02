@@ -19,7 +19,7 @@
 
         foreach ($districts as $district) {
             $id = $district['id_district'];
-            $dataArray[$id] = $district['district'];
+            $dataArray[$id] = htmlspecialchars($district['district']);
         }
 
         $queryResult->close();

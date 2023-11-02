@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cartItemsAmount.forEach(amount => amount.innerText = myCart.size);
     }
 
-    // mini functions
+    // мини функции
     const wrapperZeroHeight = list => {
         list.removeAttribute('style');
         list.classList.remove('opened');
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const csrf_token = modalForm.children[0].value;
                     const dataObj = { csrf_token, login, password };
                     getRequestedData(path, dataObj).then(data => {
-                        +data.good_auth === 1 ? location.reload() : showNotification('error', 'Не верно введен логин или пароль');
+                        data ? location.reload() : showNotification('error', 'Не верно введен логин или пароль');
                     });
                 }
             }
@@ -516,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = body.querySelector('.page-header');
     const mainContent = body.querySelector('.main-content');
     const itemsCategories = body.querySelector('.items-categories');
-    const modal = body.querySelector('.modal');
 
     const labelsChange = () => {
         const house = modal.querySelector('label[for="client-house-number"]');
@@ -682,7 +681,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
                 setFocusEffect(modal);
             } else {
-                userProfileModal(tokens['token-user-profile-modal']);
+                modalClass = 'align-center';
+                maxWidth = 'modal-block-entry';
+                const tools = [defineModal, modal, modalClass, modalBlock, maxWidth];
+                userProfileModal(tokens['token-user-profile-modal'], tools);
             }
         });
     });

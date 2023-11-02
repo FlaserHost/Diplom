@@ -2,6 +2,7 @@
 
 const html = document.querySelector('html');
 const body = document.querySelector('body');
+const modal = body.querySelector('.modal');
 
 const save = myCart => localStorage.myCart = JSON.stringify(Array.from(myCart.values()));
 

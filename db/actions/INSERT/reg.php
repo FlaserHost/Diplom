@@ -55,7 +55,6 @@
                     $stmt->close();
                     $mysqli->close();
 
-                    $authUserToken = random_token();
                     $_SESSION['register_complete'] = true;
 
                     $userData = [

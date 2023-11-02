@@ -20,9 +20,36 @@ const cartModal = (myCart, token) => {
         districts: '../../db/actions/SELECT/get_districts.php',
     };
 
+    let myAddressesClass = '';
+    if (localStorage.auth_user_token) {
+        paths.addresses = '../../db/actions/SELECT/get_my_addresses.php';
+    }
+
     getData(paths).then(data => {
         const cities = Object.keys(data[0]).map(city => `<li class="city-item drop-down-item" data-id="${city}">${data[0][city]}</li>`);
         const districts = Object.keys(data[1]).map(district => `<li class="district-item drop-down-item" data-id="${district}">${data[1][district]} район</li>`);
+        const addresses = data[2] ? Object.keys(data[2]).map(key => `<li class="address-item drop-down-item">${data[2][key].label}</li>`) : '';
+
+        if (data[2]) {
+            const gridArea = modal.querySelector('.fields-grid-area');
+            const myAddressesList = `<div class="field-area my-addresses-list">
+                                    <div class="drop-wrapper addresses-wrapper">
+                                        <div class="modal-field drop-down-list-field">
+                                            <span class="selected-drop">${data[2][0].label}</span>
+                                        </div>
+                                        <div class="drop-down-list-wrapper">
+                                            <ul class="drop-down-list">
+                                                ${addresses.join('')}
+                                            </ul>
+                                        </div>
+                                        <div class="chevron"></div>
+                                    </div>
+                                </div>`;
+
+            gridArea.insertAdjacentHTML('afterbegin', myAddressesList);
+            gridArea.classList.add('my-addresses-checked');
+        }
+
         const citiesList = body.querySelector('.cities-wrapper .drop-down-list');
         const districtsList = body.querySelector('.districts-wrapper .drop-down-list');
 
@@ -87,6 +114,11 @@ const cartModal = (myCart, token) => {
                 </div>
             </article>`);
 
+    const myAddressesCheckbox = localStorage.auth_user_token ? `<div class="my-addresses">
+        <input class="my-addresses-checkbox" id="my-addresses-checkbox" type="checkbox">
+        <label for="my-addresses-checkbox">Мои адреса</label>
+    </div>` : '';
+
     return `<div class="modal-body cart-modal flex">
         <div class="modal-header">
             <h2 class="modal-title cart">Корзина <span>(в корзине ${myCart.size} това${ending})</span></h2>
@@ -138,6 +170,7 @@ const cartModal = (myCart, token) => {
                                 <label class="toggler-label" for="shipping" data-property="shipping" data-property-rus="Доставка">Доставка</label>
                                 <label class="toggler-label" for="self-delivery" data-property="self-delivery" data-property-rus="Самовывоз">Самовывоз</label>
                             </div>
+                            ${myAddressesCheckbox}
                         </div>
                         <div class="address-block">
                             <h3>Адрес доставки</h3>
@@ -310,7 +343,7 @@ const productModal = id => {
             });
         }
 
-        const canIWrite = localStorage.auth_token
+        const canIWrite = localStorage.auth_user_token
             ? `<textarea></textarea>`
             : `<strong>Авторизируйтесь, чтобы оставить отзыв</strong>`;
 
@@ -346,7 +379,19 @@ const entryModal = (entryOptions, token) => `<div class="modal-body entry-modal 
         </form>
     </div>`;
 
-const userProfileModal = csrf_token => {
+const userProfileModal = (csrf_token, tools) => {
     const path = '../../db/actions/SELECT/user_info.php';
-    getRequestedData(path, { csrf_token }).then(data => console.log(data));
+    getRequestedData(path, { csrf_token }).then(data => {
+        const modalBody = `<div class="modal-body profile-modal flex">
+            
+        </div>`;
+
+        const defineModal = tools[0];
+        const modal = tools[1];
+        const modalClass = tools[2];
+        const modalBlock = tools[3];
+        const maxWidth = tools[4];
+
+        defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+    });
 }

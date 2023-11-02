@@ -1,5 +1,6 @@
 <?php
     session_start();
+    /*unset($_SESSION['auth_user']);*/
     require_once 'db/access/access.php';
     require_once 'db/functions.php';
 
@@ -73,18 +74,18 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Fresh Market</title>
     <link rel="shortcut icon" href="src/img/header/logo.png">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
+    <link rel="stylesheet" href="src/css/libs/swiper-bundle.min.css">
+    <link rel="stylesheet" href="src/css/libs/fancybox.css">
     <link rel="stylesheet" href="src/css/fancybox.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.css">
+    <link rel="stylesheet" href="src/css/libs/air-datepicker.min.css">
+    <link rel="stylesheet" href="src/css/libs/noty.min.css">
     <link rel="stylesheet" href="src/css/main.css">
     <link rel="stylesheet" href="src/css/adaptive.css">
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/inputmask.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js"></script>
+    <script src="src/js/libs/swiper-bundle.min.js"></script>
+    <script src="src/js/libs/fancybox.umd.js"></script>
+    <script src="src/js/libs/air-datepicker.min.js"></script>
+    <script src="src/js/libs/inputmask.min.js"></script>
+    <script src="src/js/libs/noty.min.js"></script>
 </head>
 <body>
     <?php if (isset($_SESSION['register_complete'])): ?>

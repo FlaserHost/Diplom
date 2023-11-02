@@ -19,7 +19,7 @@
 
         foreach ($cities as $city) {
             $id = $city['id_city'];
-            $jsonData[$id] = $city['city'];
+            $jsonData[$id] = htmlspecialchars($city['city']);
         }
 
         $queryResult->close();
