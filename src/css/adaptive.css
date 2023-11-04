@@ -177,8 +177,8 @@
         flex-direction: column;
         align-items: center;
         transition: right .3s;
-        border-left: 1px solid #89C340;
-        border-bottom: 1px solid #89C340;
+        border-left: 1px solid var(--main-color);
+        border-bottom: 1px solid var(--main-color);
         padding: 0 10px 10px;
     }
 
@@ -205,7 +205,7 @@
     .mobile-cart-btn {
         background-color: #fff;
         border-radius: 50%;
-        border: 3px solid #89C340;
+        border: 3px solid var(--main-color);
         width: 45px;
         height: 45px;
     }

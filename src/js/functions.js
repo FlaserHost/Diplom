@@ -242,3 +242,87 @@ const phoneMask = () => {
         showMaskOnHover: false
     }).mask(phoneFields);
 }
+
+const autocompleteFields = preparedAddress => {
+    const fields = document.querySelectorAll('.address-block .field-area:not(.my-addresses-list):not(.comment)');
+
+    try {
+        fields.forEach((field, index) => {
+            const input = field.querySelector('input');
+            field.classList.add('disabled');
+
+            if (index <= 1) {
+                field.querySelector('.selected-drop').innerText = preparedAddress[index + 1][0];
+                input.value = preparedAddress[index + 1][1];
+            } else {
+                input.value = preparedAddress[index + 1] || '';
+                field.classList.add('focused');
+            }
+        });
+    } catch (err) {
+        return false;
+    }
+}
+
+const autocompleteFieldsClear = standartAddress => {
+    const fields = document.querySelectorAll('.address-block .field-area:not(.my-addresses-list):not(.comment)');
+    fields.forEach((field, index) => {
+        const input = field.querySelector('input');
+        field.classList.remove('disabled');
+
+        if (index <= 1) {
+            field.querySelector('.selected-drop').innerText = standartAddress[index + 1][0];
+            input.value = standartAddress[index + 1][1];
+        } else {
+            input.value = '';
+            field.classList.remove('focused');
+        }
+    });
+}
+
+const createBonusInput = (elem, className, attr, attrValue) => {
+    const input = document.createElement(elem);
+    input.className = className;
+    input.setAttribute(attr, attrValue);
+
+    if (elem !== 'input' && className === 'field-area') {
+        input.innerHTML = `<div class="label-keeper">
+                                <label class="modal-label" for="promocode-input">Введите промокод</label>
+                           </div>
+                           <input class="modal-field promocode-input" id="promocode-input" name="promocode-input" type="text">`;
+    } else {
+        input.innerHTML = `<span class="points-static-value points-min">0</span>
+                           <span class="points-static-value points-half">750</span>
+                           <span class="points-static-value points-max">1500</span>
+                           <span class="points-static-value points-current-value" id="points-current-value">0</span>`;
+    }
+
+    return input;
+}
+
+const bonusInputs = {};
+let preparedBonusInput = '';
+
+if (localStorage.auth_user_token) {
+    bonusInputs.promocode_radio = createBonusInput('div', 'field-area', 'type', 'text');
+    preparedBonusInput = bonusInputs.promocode_radio;
+    bonusInputs.points_radio = createBonusInput('div', 'slider-styled slider-round', 'id', 'slider-round');
+}
+
+const rangeInput = (range, max, rangeEvents) => {
+    try {
+        noUiSlider.create(range, {
+            start: 0,
+            connect: 'lower',
+            step: 1,
+            range: {
+                'min': 0,
+                'max': max
+            }
+        });
+
+        range.noUiSlider.on('slide', e => rangeEvents(e));
+    } catch (err) {
+        return false;
+    }
+}

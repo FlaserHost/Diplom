@@ -27,8 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // мини функции
     const wrapperZeroHeight = list => {
-        list.removeAttribute('style');
-        list.classList.remove('opened');
+        try {
+            list.removeAttribute('style');
+            list.classList.remove('opened');
+        } catch (err) {
+            return false;
+        }
     }
 
     // header
@@ -191,14 +195,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const clickModalActions = {
         'count-btn': e => calculation(e, myCart), // увеличение/уменьшение числа товара внутри одной позиции
-        'show-menu-btn': () => closeModalBtn.click(), // клие по кнопке "Посмотреть меню"
+        'show-menu-btn': () => closeModalBtn.click(), // клик по кнопке "Посмотреть меню"
         'toggler-label': e => {
             const dataset = e.target.dataset;
             e.target.parentElement.className = `toggler ${dataset.property}`;
 
-            const fields = document.querySelectorAll('.address-block .field-area:not(.comment)');
-
             if (dataset.propertyRus === 'Самовывоз') {
+                const myAddressesList = modal.querySelector('.my-addresses-list');
+                myAddressesList && myAddressesList.classList.add('hide');
+
                 const districtFieldArea = modal.querySelector('.field-area.district');
 
                 if (districtFieldArea.hasAttribute('style')) {
@@ -207,31 +212,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     districtHidden.disabled = false;
                 }
 
-                fields.forEach((field, index) => {
-                    const input = field.querySelector('input');
-                    field.classList.add('disabled');
-
-                    if (index <= 1) {
-                        field.querySelector('.selected-drop').innerText = preparedAddress[index + 1][0];
-                        input.value = preparedAddress[index + 1][1];
-                    } else {
-                        input.value = preparedAddress[index + 1] || '';
-                        field.classList.add('focused');
-                    }
-                });
+                autocompleteFields(preparedAddress);
             } else {
-                fields.forEach((field, index) => {
-                    const input = field.querySelector('input');
-                    field.classList.remove('disabled');
-
-                    if (index <= 1) {
-                        field.querySelector('.selected-drop').innerText = standartAddress[index + 1][0];
-                        input.value = standartAddress[index + 1][1];
-                    } else {
-                        input.value = '';
-                        field.classList.remove('focused');
-                    }
-                });
+                autocompleteFieldsClear(standartAddress);
             }
         }, // выбор способа получения заказа
         'cart-item-delete-btn': e => {
@@ -453,6 +436,57 @@ document.addEventListener('DOMContentLoaded', () => {
         },  // ввод в поле комментария
     };
 
+    const changeActions = {
+        'my-addresses-checkbox': e => {
+            const togglerShipping = modal.querySelector('.toggler-wrapper .toggler');
+            const shipping = modal.querySelector('.toggler-label:first-of-type');
+
+            const addressesList = modal.querySelector('.my-addresses-list');
+            if (e.target.checked) {
+                shipping.click();
+                modal.querySelector(`.city-item[data-id="${addressesKeeper[0][1][1]}"]`).click();
+                togglerShipping.classList.add('disabled');
+                addressesList.classList.remove('hide');
+                autocompleteFields(addressesKeeper[0]);
+            } else {
+                  togglerShipping.classList.remove('disabled');
+                  addressesList.classList.add('hide');
+                  autocompleteFieldsClear(standartAddress);modal.querySelector(`.city-item[data-id="1"]`).click();
+            }
+        },
+        'bonus-radio': e => {
+            const property = e.target.dataset.property;
+            const parent = e.target.closest('.bonuses-block');
+
+            preparedBonusInput.remove();
+            preparedBonusInput = bonusInputs[property];
+
+            parent.insertAdjacentElement('afterend', preparedBonusInput);
+
+            if (property === 'promocode_radio') {
+
+                setFocusEffect(modal);
+            } else {
+                const range = bonusInputs.points_radio;
+                const currentPointsKeeper = modal.querySelector('#points-current-value');
+                const usePoints = (rangeIndex, range = false) => {
+                    currentPointsKeeper.innerText = +rangeIndex.join('');
+                }
+
+                const staticPointsLabels = modal.querySelectorAll('.points-static-value:not(.points-current-value)');
+                staticPointsLabels.forEach(label => {
+                    label.addEventListener('click', e => {
+                        const value = e.target.innerText;
+                        range.noUiSlider.set(value);
+                        currentPointsKeeper.innerText = value;
+                    });
+                });
+
+                rangeInput(range, 1500, usePoints);
+            }
+        },
+    };
+
     // делегирование событий на body
     body.addEventListener('click', e => {
         const list = body.querySelectorAll('.opened');
@@ -589,6 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modal.addEventListener('click', e => actionLaunch(e, clickModalActions)); // обработка ввода
     modal.addEventListener('input', e => actionLaunch(e, inputActions)); // обработка ввода
+    modal.addEventListener('change', e => actionLaunch(e, changeActions)); // обработка ввода
 
     // поиск по сайту
     const searchPath = '../../db/actions/SELECT/search.php';

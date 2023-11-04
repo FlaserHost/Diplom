@@ -79,6 +79,8 @@
     <link rel="stylesheet" href="src/css/fancybox.css">
     <link rel="stylesheet" href="src/css/libs/air-datepicker.min.css">
     <link rel="stylesheet" href="src/css/libs/noty.min.css">
+    <link rel="stylesheet" href="src/css/libs/nouislider/nouislider.min.css">
+    <link rel="stylesheet" href="src/css/libs/nouislider/nouislider.manual.css">
     <link rel="stylesheet" href="src/css/main.css">
     <link rel="stylesheet" href="src/css/adaptive.css">
     <script src="src/js/libs/swiper-bundle.min.js"></script>
@@ -86,6 +88,7 @@
     <script src="src/js/libs/air-datepicker.min.js"></script>
     <script src="src/js/libs/inputmask.min.js"></script>
     <script src="src/js/libs/noty.min.js"></script>
+    <script src="src/js/libs/nouislider.min.js"></script>
 </head>
 <body>
     <?php if (isset($_SESSION['register_complete'])): ?>

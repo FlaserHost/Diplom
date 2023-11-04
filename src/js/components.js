@@ -10,6 +10,7 @@ const emptyCart = () => `<article class="modal-body empty flex">
     </article>`;
 
 // Корзина
+let addressesKeeper = [];
 const cartModal = (myCart, token) => {
     const ending = correctEnding('cart', myCart.size);
     const cartValues = Array.from(myCart.values());
@@ -20,7 +21,7 @@ const cartModal = (myCart, token) => {
         districts: '../../db/actions/SELECT/get_districts.php',
     };
 
-    let myAddressesClass = '';
+    let myAddressesClass = 'nothing';
     if (localStorage.auth_user_token) {
         paths.addresses = '../../db/actions/SELECT/get_my_addresses.php';
     }
@@ -32,7 +33,7 @@ const cartModal = (myCart, token) => {
 
         if (data[2]) {
             const gridArea = modal.querySelector('.fields-grid-area');
-            const myAddressesList = `<div class="field-area my-addresses-list">
+            const myAddressesList = `<div class="field-area my-addresses-list hide">
                                     <div class="drop-wrapper addresses-wrapper">
                                         <div class="modal-field drop-down-list-field">
                                             <span class="selected-drop">${data[2][0].label}</span>
@@ -46,8 +47,13 @@ const cartModal = (myCart, token) => {
                                     </div>
                                 </div>`;
 
+            addressesKeeper = data[2];
             gridArea.insertAdjacentHTML('afterbegin', myAddressesList);
             gridArea.classList.add('my-addresses-checked');
+
+            const myAddressesSelector = modal.querySelector('.my-addresses');
+            myAddressesSelector.classList.remove('nothing');
+            myAddressesSelector.removeAttribute('title');
         }
 
         const citiesList = body.querySelector('.cities-wrapper .drop-down-list');
@@ -114,10 +120,29 @@ const cartModal = (myCart, token) => {
                 </div>
             </article>`);
 
-    const myAddressesCheckbox = localStorage.auth_user_token ? `<div class="my-addresses">
-        <input class="my-addresses-checkbox" id="my-addresses-checkbox" type="checkbox">
-        <label for="my-addresses-checkbox">Мои адреса</label>
-    </div>` : '';
+    let myAddressesCheckbox = '';
+    let bonusesToggler = '';
+    let classForBonuses = 'no-auth';
+
+    if (localStorage.auth_user_token) {
+        myAddressesCheckbox = `<div class="my-addresses ${myAddressesClass}" title="У Вас нет избранных адресов">
+            <input class="my-addresses-checkbox" id="my-addresses-checkbox" type="checkbox">
+            <label for="my-addresses-checkbox">Мои адреса</label>
+        </div>`;
+
+        bonusesToggler = `<div class="bonuses-block">
+                            <div class="promocode">
+                                <input class="bonus-radio promocode-radio" id="promocode-radio" data-property="promocode_radio" type="radio" name="bonus-radio">
+                                <label for="promocode-radio">Промокод</label>
+                            </div>
+                            <div class="points">
+                                <input class="bonus-radio points-radio" id="points-radio" data-property="points_radio" type="radio" name="bonus-radio">
+                                <label for="points-radio">Баллы</label>
+                            </div>
+                        </div>`;
+
+        classForBonuses = 'user_auth';
+    }
 
     return `<div class="modal-body cart-modal flex">
         <div class="modal-header">
@@ -127,7 +152,7 @@ const cartModal = (myCart, token) => {
             ${cartItems.join('')}
         </div>
         <div class="total-cost">
-            <span class="cart-total-cost">Сумма: ${totalCost} ₽</span>
+            <span class="cart-total-cost" data-total-cost="${totalCost}">Сумма: ${totalCost} ₽</span>
         </div>
         <div class="order-data">
             <div class="order-data-header">
@@ -250,9 +275,12 @@ const cartModal = (myCart, token) => {
                             </div>
                         </div>
                     </article>
-                    <article class="section client-data__cart-total-cost">
-                        <span class="cart-total-cost">Итого: ${totalCost} ₽</span>
-                        <input id="final-total-cost" name="final_cart_cost" type="hidden" value="${totalCost}">
+                    <article class="section client-data__cart-total-cost ${classForBonuses}">
+                        ${bonusesToggler}
+                        <div class="cart-total-cost-wrapper">
+                            <span class="cart-total-cost">Итого: ${totalCost} ₽</span>
+                            <input id="final-total-cost" name="final_cart_cost" type="hidden" value="${totalCost}">
+                        </div>
                     </article>
                     <article class="section client-data__modal-footer">
                         <div class="modal-footer-wrapper">
@@ -276,6 +304,7 @@ const sex = {
     2: 'female',
     3: 'neutral'
 }
+
 const productModal = id => {
     const path = '../../db/actions/SELECT/get_product_info.php';
     getRequestedData(path, id).then(data => {

@@ -1,3 +1,7 @@
+:root {
+    --main-color: #89C340;
+}
+
 @font-face {
     font-family: Gilroy;
     src: url('../fonts/Gilroy/Gilroy-Regular.ttf');
@@ -76,12 +80,12 @@ input[type='checkbox'] {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #89C340;
+    background-color: var(--main-color);
 }
 
 ::-webkit-scrollbar-track {
     background-color: #403C3B;
-    border-left: 1px solid #89C340;
+    border-left: 1px solid var(--main-color);
 }
 
 textarea {
@@ -93,7 +97,7 @@ textarea::-webkit-scrollbar {
 }
 
 ::selection {
-    background-color: #89C340;
+    background-color: var(--main-color);
     color: #fff;
 }
 
@@ -173,7 +177,7 @@ textarea::-webkit-scrollbar {
 }
 
 .search-category:hover {
-    color: #89C340;
+    color: var(--main-color);
 }
 
 .search-category:not(:first-child) {
@@ -299,8 +303,8 @@ textarea::-webkit-scrollbar {
 .cart-btn {
     width: 130px;
     height: 50px;
-    background-color: #89C340;
-    border: 1px solid #89C340;
+    background-color: var(--main-color);
+    border: 1px solid var(--main-color);
     border-radius: 5px;
     cursor: pointer;
     font-size: 15px;
@@ -337,13 +341,13 @@ textarea::-webkit-scrollbar {
 }
 
 .cart-btn:hover > span:first-child {
-    color: #89C340;
-    border-right-color: #89C340;
+    color: var(--main-color);
+    border-right-color: var(--main-color);
 }
 
 .cart-btn:hover > span:last-child {
-    color: #89C340;
-    border-color: #89C340;
+    color: var(--main-color);
+    border-color: var(--main-color);
     background-color: transparent;
 }
 
@@ -369,7 +373,7 @@ textarea::-webkit-scrollbar {
 }
 
 .entry-btn:hover {
-    color: #89C340;
+    color: var(--main-color);
 }
 
 .entry-btn-img {
@@ -396,8 +400,8 @@ textarea::-webkit-scrollbar {
 }
 
 .entry-btn:hover > .entry-btn-img.neutral {
-    background-color: #89C340;
-    border: 2px solid #89C340;
+    background-color: var(--main-color);
+    border: 2px solid var(--main-color);
     transition: background-image .3s;
     background-image: url('../img/header/neutral-hovered.svg');
 }
@@ -424,7 +428,7 @@ label[for="burger-box"],
 .main-content {
     margin-top: 92px;
     width: 100%;
-    background: rgb(64, 60, 59) linear-gradient(165deg, rgb(64, 60, 59) 53%, rgb(137, 195, 64) 200%);
+    background: #403C3B linear-gradient(165deg, #403C3B 53%, var(--main-color) 200%);
     min-height: 100vh;
 }
 
@@ -451,7 +455,7 @@ label[for="burger-box"],
 }
 
 .main-content .swiper-pagination-bullet-active {
-    background-color: #89C340;
+    background-color: var(--main-color);
 }
 
 /* main showcase */
@@ -470,8 +474,8 @@ label[for="burger-box"],
     background-color: #403C3B;
     position: sticky;
     top: 92px;
-    border-top: 1px solid #89C340;
-    border-bottom: 1px solid #89C340;
+    border-top: 1px solid var(--main-color);
+    border-bottom: 1px solid var(--main-color);
     z-index: 1;
 }
 
@@ -486,7 +490,7 @@ label[for="burger-box"],
 }
 
 .items-categories a:hover {
-    color: #89C340;
+    color: var(--main-color);
 }
 
 .showcase__items {
@@ -515,7 +519,7 @@ label[for="burger-box"],
     left: 0;
     width: 4px;
     height: 100%;
-    background-color: #89C340;
+    background-color: var(--main-color);
 }
 
 .category-products,
@@ -645,19 +649,19 @@ label[for="burger-box"],
 }
 
 .add-to-cart-btn {
-    background-color: #89C340;
+    background-color: var(--main-color);
     color: #fff;
     border-radius: 8px;
     padding: 10px 20px;
     cursor: pointer;
-    border: 1px solid #89C340;
+    border: 1px solid var(--main-color);
     display: none;
     transition: .3s;
 }
 
 .add-to-cart-btn:hover {
-    background-color: #4E4948;
-    color: #89C340;
+    background-color: var(--main-color);
+    color: var(--main-color);
 }
 
 /* modal */
@@ -726,9 +730,9 @@ label[for="burger-box"],
 }
 
 .show-menu-btn {
-    background-color: #89C340;
+    background-color: var(--main-color);
     color: #fff;
-    border: 1px solid #89C340;
+    border: 1px solid var(--main-color);
     border-radius: 12px;
     margin-top: 45px;
     padding: 10px 15px;
@@ -741,7 +745,7 @@ label[for="burger-box"],
 
 .show-menu-btn:hover {
     background-color: transparent;
-    color: #89C340;
+    color: var(--main-color);
 }
 
 /* cart-modal */
@@ -752,7 +756,7 @@ label[for="burger-box"],
 
 .modal-title.cart > span {
     font-size: 12px;
-    color: #89C340;
+    color: var(--main-color);
     font-weight: 100;
 }
 
@@ -815,10 +819,10 @@ label[for="burger-box"],
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: #89C340 no-repeat center / 10px;
+    background: var(--main-color) no-repeat center / 10px;
     cursor: pointer;
     transition: .3s;
-    border: 1px solid #89C340;
+    border: 1px solid var(--main-color);
 }
 
 .count-btn:hover,
@@ -903,7 +907,7 @@ label[for="burger-box"],
     content: '*';
     display: block;
     font-size: 17px;
-    color: #89C340;
+    color: var(--main-color);
     position: absolute;
     top: 0;
     left: calc(100% + 1px);
@@ -993,7 +997,7 @@ label[for="burger-box"],
     max-width: 363px;
     height: 60px;
     border-radius: 10px;
-    border: 1px solid #89C340;
+    border: 1px solid var(--main-color);
     position: relative;
     display: flex;
     overflow: hidden;
@@ -1005,7 +1009,7 @@ label[for="burger-box"],
     position: absolute;
     top: 0;
     left: 0;
-    background-color: #89C340;
+    background-color: var(--main-color);
     transition: left .3s;
 }
 
@@ -1061,8 +1065,38 @@ label[for="burger-box"],
     grid-column: 3 / 4;
 }
 
-.my-addresses-list {
+.toggler-wrapper .toggler.disabled {
+    border-color: #666;
+}
+
+.toggler-wrapper .toggler.disabled > .carriage {
+    background-color: #666;
+}
+
+.toggler-wrapper .toggler.disabled > label:first-of-type {
+    color: #888;
+}
+
+.toggler-wrapper .toggler.disabled > label:last-of-type {
+    color: #666;
+}
+
+.my-addresses-list.hide {
     display: none;
+}
+
+.my-addresses.nothing,
+.my-addresses.nothing > * {
+    cursor: default;
+}
+
+.my-addresses.nothing {
+    border-color: #666;
+}
+
+.my-addresses.nothing > label {
+    color: #666;
+    pointer-events: none;
 }
 
 .comment-label {
@@ -1091,7 +1125,7 @@ label[for="burger-box"],
 }
 
 .drop-down-item:hover {
-    color: #89C340;
+    color: var(--main-color);
 }
 
 .drop-down-item:not(:first-child) {
@@ -1117,8 +1151,20 @@ label[for="burger-box"],
 }
 
 .client-data__cart-total-cost {
-    text-align: right;
     color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+.no-auth {
+    justify-content: flex-end;
+}
+
+.user_auth {
+    justify-content: space-between;
+}
+
+.cart-total-cost-wrapper {
     font-size: 25px;
     font-weight: 900;
     text-shadow: 0 0 10px #fff;
@@ -1148,7 +1194,7 @@ label[for="burger-box"],
     display: block;
     width: 20px;
     height: 20px;
-    border: 1px solid #89C340;
+    border: 1px solid var(--main-color);
     border-radius: 3px;
     background: transparent no-repeat center / 15px;
 }
@@ -1159,7 +1205,7 @@ label[for="burger-box"],
 
 .client-agreed-label > a {
     display: inline-block;
-    color: #89C340;
+    color: var(--main-color);
     position: relative;
 }
 
@@ -1174,7 +1220,7 @@ label[for="burger-box"],
     width: 0;
     height: 1.5px;
     transition: width .3s;
-    background-color: #89C340;
+    background-color: var(--main-color);
 }
 
 .client-agreed-label > a:hover:after,
@@ -1184,11 +1230,11 @@ label[for="burger-box"],
 
 .confirm-btn,
 .action-confirm-btn {
-    background-color: #89C340;
+    background-color: var(--main-color);
     color: #fff;
     font-weight: 600;
     padding: 15px 40px;
-    border: 1px solid #89C340;
+    border: 1px solid var(--main-color);
     border-radius: 6px;
     transition: .3s;
     cursor: pointer;
@@ -1198,7 +1244,7 @@ label[for="burger-box"],
 .confirm-btn:hover,
 .action-confirm-btn:hover {
     background-color: transparent;
-    color: #89C340;
+    color: var(--main-color);
 }
 
 .product-info-section {
@@ -1218,7 +1264,7 @@ label[for="burger-box"],
 }
 
 .current-product-info__photo {
-    border: 2px solid #89C340;
+    border: 2px solid var(--main-color);
 }
 
 .current-product-info__photo > figure {
@@ -1354,7 +1400,7 @@ label[for="burger-box"],
 }
 
 .back-to-showcase {
-    color: #89C340;
+    color: var(--main-color);
     cursor: pointer;
     font-size: 18px;
     padding-left: 25px;
@@ -1397,7 +1443,7 @@ label[for="burger-box"],
     height: 100%;
     position: absolute;
     top: 0;
-    background-color: #89C340;
+    background-color: var(--main-color);
     transition: left .3s;
 }
 
@@ -1437,7 +1483,7 @@ label[for="burger-box"],
 }
 
 .forgot-password-btn {
-    color: #89C340;
+    color: var(--main-color);
     font-size: 15px;
     margin-top: 15px;
     cursor: pointer;
@@ -1480,15 +1526,25 @@ label[for="burger-box"],
     font-size: 16px;
 }
 
-.my-addresses {
+.my-addresses,
+.bonuses-block > div {
     width: 150px;
     height: 60px;
-    border: 1px solid #89C340;
+    border: 1px solid var(--main-color);
     border-radius: 10px;
     overflow: hidden;
 }
 
-.my-addresses > label {
+.bonuses-block {
+    height: 63.35px;
+}
+
+.bonuses-block > div:not(:last-child) {
+    margin-right: 10px;
+}
+
+.my-addresses > label,
+.bonuses-block label {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1499,15 +1555,54 @@ label[for="burger-box"],
     transition: background-color .3s;
 }
 
-.my-addresses-checkbox:checked + label {
-    background-color: #89C340;
+.my-addresses-checkbox:checked + label,
+.bonuses-block input[type='radio']:checked + label {
+    background-color: var(--main-color);
+}
+
+.bonuses-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.points-static-value {
+    display: block;
+    position: absolute;
+}
+
+.points-static-value:not(.points-half, .points-current-value) {
+    top: 50%;
+    transform: translateY(-55%);
+}
+
+.points-min {
+    right: calc(100% + 15px);
+}
+
+.points-half,
+.points-current-value {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.points-half {
+    top: calc(100% + 15px);
+}
+
+.points-max {
+    left: calc(100% + 15px);
+}
+
+.points-current-value {
+    bottom: calc(100% + 15px);
 }
 
 /* технические стили */
 
 .active,
 .free {
-    color: #89C340;
+    color: var(--main-color);
 }
 
 .busy {
@@ -1560,7 +1655,7 @@ label[for="burger-box"],
     position: absolute;
     top: 3px;
     left: 11px;
-    border: 3px solid #89C340;
+    border: 3px solid var(--main-color);
     border-radius: 5px;
     width: 110px;
     height: 45px;
