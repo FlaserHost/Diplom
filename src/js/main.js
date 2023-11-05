@@ -491,10 +491,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         const value = e.target.innerText;
                         range.noUiSlider.set(value);
                         currentPointsKeeper.innerText = value;
+                        updateSumm(totalCost - value);
                     });
                 });
 
-                rangeInput(range, 1500, usePoints);
+                rangeInput(range, maxPoints, usePoints);
             }
         },
     };
@@ -608,6 +609,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 maxWidth = 'modal-block-cart';
 
                 modalBody = cartModal(myCart, tokens['token-cart-modal']);
+
+                if (localStorage.auth_user_token) {
+                    const halfCost = Math.round(totalCost / 2);
+                    maxPoints = Math.min(halfCost, userCurrentPoints);
+                    const halfPoints = Math.round(maxPoints / 2);
+                    const pointsBox = [halfPoints, maxPoints];
+
+                    const labels = bonusInputs.points_radio.children;
+
+                    for (let i = 1; i <= 2; i++) {
+                        labels[i].innerText = pointsBox[i - 1];
+                    }
+                }
             } else {
                 modalClass = 'align-center';
                 maxWidth = 'modal-block-empty';
