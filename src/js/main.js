@@ -457,6 +457,14 @@ document.addEventListener('DOMContentLoaded', () => {
         'bonus-radio': e => {
             const property = e.target.dataset.property;
             const parent = e.target.closest('.bonuses-block');
+            const totalCostLabels = modal.querySelectorAll('.cart-total-cost');
+            const hiddenTotalCost = totalCostLabels[1].nextElementSibling;
+
+            const labelName = ['Сумма', 'Итого'];
+            const updateSumm = newValue => {
+                totalCostLabels.forEach((label, index) => label.innerText = `${labelName[index]}: ${newValue} ₽`);
+                hiddenTotalCost.value = newValue;
+            }
 
             preparedBonusInput.remove();
             preparedBonusInput = bonusInputs[property];
@@ -464,13 +472,17 @@ document.addEventListener('DOMContentLoaded', () => {
             parent.insertAdjacentElement('afterend', preparedBonusInput);
 
             if (property === 'promocode_radio') {
-
+                updateSumm(totalCost);
                 setFocusEffect(modal);
             } else {
                 const range = bonusInputs.points_radio;
                 const currentPointsKeeper = modal.querySelector('#points-current-value');
-                const usePoints = (rangeIndex, range = false) => {
-                    currentPointsKeeper.innerText = +rangeIndex.join('');
+                updateSumm(totalCost - currentPointsKeeper.innerText);
+
+                const usePoints = rangeIndex => {
+                    const points = +rangeIndex.join('')
+                    currentPointsKeeper.innerText = points;
+                    updateSumm(totalCost - points);
                 }
 
                 const staticPointsLabels = modal.querySelectorAll('.points-static-value:not(.points-current-value)');

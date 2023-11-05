@@ -291,6 +291,11 @@ const createBonusInput = (elem, className, attr, attrValue) => {
                            </div>
                            <input class="modal-field promocode-input" id="promocode-input" name="promocode-input" type="text">`;
     } else {
+
+
+
+
+
         input.innerHTML = `<span class="points-static-value points-min">0</span>
                            <span class="points-static-value points-half">750</span>
                            <span class="points-static-value points-max">1500</span>

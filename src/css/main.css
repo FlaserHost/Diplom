@@ -1168,6 +1168,8 @@ label[for="burger-box"],
     font-size: 25px;
     font-weight: 900;
     text-shadow: 0 0 10px #fff;
+    width: 160px;
+    text-align: right;
 }
 
 .modal-footer-wrapper {

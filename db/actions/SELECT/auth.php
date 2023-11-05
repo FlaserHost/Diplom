@@ -18,7 +18,7 @@
             if ($customs) {
                 $login = $customs->login;
 
-                $request = "SELECT login, id_sex, password_hash, id_user FROM users WHERE login = ?";
+                $request = "SELECT login, id_sex, password_hash, id_user, points_remaining FROM users WHERE login = ?";
 
                 if ($stmt = $mysqli->prepare($request)) {
                     $stmt->bind_param('s', $login);
@@ -52,7 +52,8 @@
                             $userData = [
                                 'token' => $rowResult['id_user'],
                                 'login' => $rowResult['login'],
-                                'sex' => $sexClasses[$rowResult['id_sex']]
+                                'sex' => $sexClasses[$rowResult['id_sex']],
+                                'points' => $rowResult['points_remaining']
                             ];
 
                             $_SESSION['auth_user'] = $userData;

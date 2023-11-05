@@ -100,6 +100,7 @@
     <script>
         <?php if ($auth_user): ?>
             localStorage.auth_user_token = '<?= $_SESSION['auth_user']['token'] ?>';
+            const userCurrentPoints = <?= $_SESSION['auth_user']['points'] ?>;
         <?php else: ?>
             localStorage.removeItem('auth_user_token');
         <?php endif ?>

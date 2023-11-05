@@ -11,10 +11,12 @@ const emptyCart = () => `<article class="modal-body empty flex">
 
 // Корзина
 let addressesKeeper = [];
+
+let totalCost = 0;
 const cartModal = (myCart, token) => {
     const ending = correctEnding('cart', myCart.size);
     const cartValues = Array.from(myCart.values());
-    const totalCost = total(cartValues);
+    totalCost = total(cartValues);
 
     const paths = {
         cities: '../../db/actions/SELECT/get_cities.php',
@@ -152,7 +154,7 @@ const cartModal = (myCart, token) => {
             ${cartItems.join('')}
         </div>
         <div class="total-cost">
-            <span class="cart-total-cost" data-total-cost="${totalCost}">Сумма: ${totalCost} ₽</span>
+            <span class="cart-total-cost">Сумма: ${totalCost} ₽</span>
         </div>
         <div class="order-data">
             <div class="order-data-header">
