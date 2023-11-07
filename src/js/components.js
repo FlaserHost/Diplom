@@ -12,7 +12,6 @@ const emptyCart = () => `<article class="modal-body empty flex">
 // Корзина
 let addressesKeeper = [];
 
-let totalCost = 0;
 const cartModal = (myCart, token) => {
     const ending = correctEnding('cart', myCart.size);
     const cartValues = Array.from(myCart.values());
@@ -132,18 +131,17 @@ const cartModal = (myCart, token) => {
             <label for="my-addresses-checkbox">Мои адреса</label>
         </div>`;
 
-        bonusesToggler = `<div class="bonuses-block">
-                            <div class="promocode">
-                                <input class="bonus-radio promocode-radio" id="promocode-radio" data-property="promocode_radio" type="radio" name="bonus-radio">
-                                <label for="promocode-radio">Промокод</label>
-                            </div>
-                            <div class="points">
-                                <input class="bonus-radio points-radio" id="points-radio" data-property="points_radio" type="radio" name="bonus-radio">
-                                <label for="points-radio">Баллы</label>
-                            </div>
-                        </div>`;
-
         classForBonuses = 'user_auth';
+
+        bonusesToggler = `<div class="toggler bonus">
+                                <input class="bonus-radio promocode-radio" id="promocode-radio" type="radio" name="bonus_type" data-property="promocode_radio">
+                                <input class="bonus-radio points-radio" id="points-radio" type="radio" name="bonus_type" data-property="points_radio">
+                                <label class="toggler-label toggler-label-bonus" for="promocode-radio">Промокод</label>
+                                <label class="toggler-label toggler-label-bonus" for="points-radio">Баллы</label>
+                                <div class="carriage"></div>
+                            </div>`;
+
+        setTimeout(userGetPoints, 100);
     }
 
     return `<div class="modal-body cart-modal flex">
@@ -190,12 +188,29 @@ const cartModal = (myCart, token) => {
                     <article class="section client-data__order-shipping">
                         <h3>2. Доставка</h3>
                         <div class="toggler-wrapper">
-                            <div class="toggler shipping">
+                            <div class="toggler shipping-type">
+                                <input
+                                    class="shipping-radio shipping"
+                                    id="shipping"
+                                    type="radio"
+                                    name="shipping_type"
+                                    data-property="shipping-selected"
+                                    data-property-rus="Доставка"
+                                    value="Доставка"
+                                    checked
+                                >
+                                <input
+                                    class="shipping-radio self-delivery"
+                                    id="self-delivery"
+                                    type="radio"
+                                    name="shipping_type"
+                                    data-property="self-delivery-selected"
+                                    data-property-rus="Самовывоз"
+                                    value="Самовывоз"
+                                >
+                                <label class="toggler-label" for="shipping">Доставка</label>
+                                <label class="toggler-label" for="self-delivery">Самовывоз</label>
                                 <div class="carriage"></div>
-                                <input id="shipping" type="radio" name="shipping_type" value="Доставка" checked>
-                                <input id="self-delivery" type="radio" name="shipping_type" value="Самовывоз">
-                                <label class="toggler-label" for="shipping" data-property="shipping" data-property-rus="Доставка">Доставка</label>
-                                <label class="toggler-label" for="self-delivery" data-property="self-delivery" data-property-rus="Самовывоз">Самовывоз</label>
                             </div>
                             ${myAddressesCheckbox}
                         </div>

@@ -52,6 +52,31 @@ const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
 // Стоимость корзины
 const total = array => array.reduce((sum, item) => sum + item.product_cost, 0);
 
+let totalCost = 0;
+let pointsRewardedText = '';
+const userGetPoints = () => {
+    const pointsLabel = modal.querySelector('.points-rewarded');
+    pointsLabel && pointsLabel.remove();
+
+    const pointsCoefficient = Math.floor(totalCost / 1000);
+
+    if (pointsCoefficient > 0) {
+        const totalCostLabel = modal.querySelector('.cart-total-cost-wrapper');
+        const pointsRewarded = 80 * pointsCoefficient;
+        pointsRewardedText = `<span class="points-rewarded">Вам будет начислено ${pointsRewarded} баллов</span>`;
+        totalCostLabel.insertAdjacentHTML('beforeend', pointsRewardedText);
+    }
+}
+
+const updateSumm = newValue => {
+    const totalCostLabels = modal.querySelectorAll('.cart-total-cost');
+    const hiddenTotalCost = totalCostLabels[1].nextElementSibling;
+    const labelName = ['Сумма', 'Итого'];
+
+    totalCostLabels.forEach((label, index) => label.innerText = `${labelName[index]}: ${newValue} ₽`);
+    hiddenTotalCost.value = newValue;
+}
+
 // Калькуляция
 const calculation = (e, myCart) => {
     const isCounterBtns = e.target.classList.contains('count-btn');
@@ -88,17 +113,20 @@ const calculation = (e, myCart) => {
     const finalTotalCost = document.getElementById('final-total-cost');
 
     const allItems = Array.from(myCart.values());
-    const summ = total(allItems);
+    totalCost = total(allItems);
 
     countField.value = amount;
     cost.innerText = `${newCost} ₽`;
 
     totalCosts.forEach((item, index) => {
         const title = index === 0 ? 'Сумма' : 'Итого';
-        item.innerText = `${title}: ${summ} ₽`;
+        item.innerText = `${title}: ${totalCost} ₽`;
     });
 
-    finalTotalCost.value = summ;
+    finalTotalCost.value = totalCost;
+
+    userGetPoints();
+
 }
 
 const correctEnding = (item, amount) => {
@@ -285,7 +313,7 @@ const createBonusInput = (elem, className, attr, attrValue) => {
     input.className = className;
     input.setAttribute(attr, attrValue);
 
-    if (elem !== 'input' && className === 'field-area') {
+    if (className === 'field-area') {
         input.innerHTML = `<div class="label-keeper">
                                 <label class="modal-label" for="promocode-input">Введите промокод</label>
                            </div>

@@ -196,30 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const clickModalActions = {
         'count-btn': e => calculation(e, myCart), // увеличение/уменьшение числа товара внутри одной позиции
         'show-menu-btn': () => closeModalBtn.click(), // клик по кнопке "Посмотреть меню"
-        'toggler-label': e => {
-            const dataset = e.target.dataset;
-            e.target.parentElement.className = `toggler ${dataset.property}`;
-
-            if (dataset.propertyRus === 'Самовывоз') {
-                const myAddressesList = modal.querySelector('.my-addresses-list');
-                myAddressesList && myAddressesList.classList.add('hide');
-
-                const districtFieldArea = modal.querySelector('.field-area.district');
-
-                if (districtFieldArea.hasAttribute('style')) {
-                    const districtHidden = modal.querySelector('input[name="hidden_district"]');
-                    districtFieldArea.removeAttribute('style');
-                    districtHidden.disabled = false;
-                }
-
-                autocompleteFields(preparedAddress);
-            } else {
-                autocompleteFieldsClear(standartAddress);
-            }
-        }, // выбор способа получения заказа
         'cart-item-delete-btn': e => {
             const mainParent = e.target.closest('.cart-item');
-            const totalCost = document.querySelector('.total-cost > span');
             const id = +mainParent.dataset.productId;
 
             myCart.delete(id);
@@ -230,13 +208,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (myCart.size !== 0) {
                 const allItems = Array.from(myCart.values());
-                const summ = total(allItems);
-
-                totalCost.innerText = `Сумма ${summ} ₽`;
+                totalCost = total(allItems);
+                updateSumm(totalCost);
 
                 const ending = correctEnding('cart', myCart.size);
                 const title = document.querySelector('.modal-title.cart');
                 title.innerHTML = `Корзина <span>(в корзине ${myCart.size} това${ending})</span>`;
+                userGetPoints();
             } else {
                 modalBlock.querySelector('.modal-body').remove();
 
@@ -437,6 +415,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const changeActions = {
+        'shipping-radio': e => {
+            const dataset = e.target.dataset;
+
+            if (dataset.propertyRus === 'Самовывоз') {
+                const myAddressesList = modal.querySelector('.my-addresses-list');
+                myAddressesList && myAddressesList.classList.add('hide');
+
+                const districtFieldArea = modal.querySelector('.field-area.district');
+
+                if (districtFieldArea.hasAttribute('style')) {
+                    const districtHidden = modal.querySelector('input[name="hidden_district"]');
+                    districtFieldArea.removeAttribute('style');
+                    districtHidden.disabled = false;
+                }
+
+                autocompleteFields(preparedAddress);
+            } else {
+                autocompleteFieldsClear(standartAddress);
+            }
+        }, // выбор способа получения заказа
         'my-addresses-checkbox': e => {
             const togglerShipping = modal.querySelector('.toggler-wrapper .toggler');
             const shipping = modal.querySelector('.toggler-label:first-of-type');
@@ -456,15 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         'bonus-radio': e => {
             const property = e.target.dataset.property;
-            const parent = e.target.closest('.bonuses-block');
-            const totalCostLabels = modal.querySelectorAll('.cart-total-cost');
-            const hiddenTotalCost = totalCostLabels[1].nextElementSibling;
-
-            const labelName = ['Сумма', 'Итого'];
-            const updateSumm = newValue => {
-                totalCostLabels.forEach((label, index) => label.innerText = `${labelName[index]}: ${newValue} ₽`);
-                hiddenTotalCost.value = newValue;
-            }
+            const parent = e.target.closest('.toggler.bonus');
 
             preparedBonusInput.remove();
             preparedBonusInput = bonusInputs[property];

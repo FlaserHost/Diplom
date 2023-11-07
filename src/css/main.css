@@ -683,7 +683,7 @@ label[for="burger-box"],
 .modal-block {
     width: 100%;
     background-color: #403C3B;
-    padding: 35px 25px;
+    padding: 35px 25px 25px;
     border-radius: 12px;
     position: relative;
     overflow: hidden;
@@ -1022,19 +1022,48 @@ label[for="burger-box"],
     color: #fff;
     position: relative;
     cursor: pointer;
+    z-index: 1;
 }
 
-.toggler.shipping > .carriage {
+.toggler.shipping-type > .shipping:checked ~ .carriage {
     left: 0;
 }
 
-.toggler.self-delivery > .carriage {
+.toggler.shipping-type > .self-delivery ~ .carriage {
     left: 50%;
 }
 
-.toggler.shipping > .toggler-label:nth-last-child(2),
-.toggler.self-delivery > .toggler-label:last-child {
+.toggler.bonus {
+    width: 40%;
+    height: 63.35px;
+}
+
+.toggler.bonus .carriage {
+    display: none;
+}
+
+.toggler.bonus > .promocode-radio:checked ~ .carriage,
+.toggler.bonus > .points-radio:checked ~ .carriage {
+    display: block;
+}
+
+.toggler.bonus > .promocode-radio:checked ~ .carriage {
+    left: 0;
+}
+
+.toggler.bonus > .points-radio:checked ~ .carriage {
+    left: 50%;
+}
+
+.toggler.shipping-type > .shipping:checked ~ .toggler-label:nth-of-type(1),
+.toggler.shipping-type > .self-delivery:checked ~ .toggler-label:nth-of-type(2),
+.toggler.bonus > .promocode-radio:checked ~ .toggler-label:nth-of-type(1),
+.toggler.bonus > .points-radio:checked ~ .toggler-label:nth-of-type(2) {
     font-weight: 900;
+}
+
+.toggler.bonus > .promocode-radio ~ .toggler-label:nth-of-type(1) {
+    border-right: 1px solid #89C340;
 }
 
 .address-block,
@@ -1170,6 +1199,7 @@ label[for="burger-box"],
     text-shadow: 0 0 10px #fff;
     width: 160px;
     text-align: right;
+    position: relative;
 }
 
 .modal-footer-wrapper {
@@ -1418,6 +1448,7 @@ label[for="burger-box"],
 }
 
 /* entry-modal */
+
 .entry-modal .tabs-wrapper {
     width: 100%;
 }
@@ -1528,8 +1559,7 @@ label[for="burger-box"],
     font-size: 16px;
 }
 
-.my-addresses,
-.bonuses-block > div {
+.my-addresses {
     width: 150px;
     height: 60px;
     border: 1px solid var(--main-color);
@@ -1537,16 +1567,7 @@ label[for="burger-box"],
     overflow: hidden;
 }
 
-.bonuses-block {
-    height: 63.35px;
-}
-
-.bonuses-block > div:not(:last-child) {
-    margin-right: 10px;
-}
-
-.my-addresses > label,
-.bonuses-block label {
+.my-addresses > label {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1557,15 +1578,8 @@ label[for="burger-box"],
     transition: background-color .3s;
 }
 
-.my-addresses-checkbox:checked + label,
-.bonuses-block input[type='radio']:checked + label {
+.my-addresses-checkbox:checked + label {
     background-color: var(--main-color);
-}
-
-.bonuses-block {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .points-static-value {
@@ -1598,6 +1612,17 @@ label[for="burger-box"],
 
 .points-current-value {
     bottom: calc(100% + 15px);
+}
+
+.points-rewarded {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: #89C340;
+    text-shadow: none;
 }
 
 /* технические стили */
