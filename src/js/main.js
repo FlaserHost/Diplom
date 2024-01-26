@@ -15,11 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedData = JSON.parse(localStorage.myCart);
 
         savedData.forEach(item => {
-            myCart.set(item.product_id, item);
-
-            const itemArticle = document.getElementById(`product-${item.product_id}`);
-            itemArticle.querySelector('.add-to-cart-btn').classList.remove('show');
-            itemArticle.querySelector('.added-notice').classList.add('show');
+            myCart.set(+item.id_product, item);
+            addToCartBtnsToggler(item.id_product);
         });
 
         cartItemsAmount.forEach(amount => amount.innerText = myCart.size);
@@ -42,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedCategory = document.getElementById('selected-category');
     const hiddenSelectedCategory = document.getElementById('search-category-changed');
     const cartBtnWrapper = body.querySelector('.cart-btn-wrapper');
+    const entryBtns = body.querySelectorAll('.enbt');
 
     // открытие списка категорий для поискового поля
     categoryToSearch.addEventListener('click', e => {
@@ -163,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginPattern = new RegExp(`^[a-zA-Z0-9_-]{${minLoginLength},${maxLoginLength}}$`);
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,4}$/i;
 
+    let ordersStory = '';
     // функции выполняемые при клике на элементы
     const clickActions = {
         'add-to-cart-btn': e => addToCartProcess(e, myCart, cartItemsAmount, cartBtnWrapper), // добавление товара в корзину
@@ -173,10 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             modalBody = productModal(productID);
-            modalClass = 'align-start';
             maxWidth = 'modal-product-info';
             body.style.overflow = 'hidden';
-            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+            defineModal(modal, modalBlock, maxWidth, modalBody);
         }, // открыть info о продукте
         'back-to-showcase': () => {
             const foundItems = document.querySelector('.found-items');
@@ -202,9 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             myCart.delete(id);
             save(myCart);
+
+            interactiveItemsIDs(myCart);
+
             mainParent.remove();
 
-            cartItemsAmount.innerText = myCart.size;
+            cartItemsAmount.forEach(amount => amount.innerText = myCart.size);
 
             if (myCart.size !== 0) {
                 const allItems = Array.from(myCart.values());
@@ -214,21 +215,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ending = correctEnding('cart', myCart.size);
                 const title = document.querySelector('.modal-title.cart');
                 title.innerHTML = `Корзина <span>(в корзине ${myCart.size} това${ending})</span>`;
-                userGetPoints();
+
+                localStorage.auth_user_token && userGetPoints();
             } else {
                 modalBlock.querySelector('.modal-body').remove();
 
                 let modalBody;
                 let maxWidth;
-                let modalClass;
 
-                modalClass = 'align-center';
                 maxWidth = 'modal-block-empty';
-
                 modalBody = emptyCart();
 
-                modal.className = `modal flex ${modalClass}`;
-                modalBlock.className = `modal-block ${maxWidth}`;
+                modal.className = `modal flex`;
+                modalBlock.className = `modal-block margin ${maxWidth}`;
                 modalBlock.insertAdjacentHTML('beforeend', modalBody);
             }
 
@@ -251,8 +250,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const parent = e.target.closest('.drop-wrapper');
             const selected = parent.querySelector('.selected-drop');
             const hidden = parent.querySelector('.drop-hidden');
+            const id = e.target.dataset.id;
             selected.innerText = e.target.innerText;
-            hidden.value = e.target.dataset.id;
+
+            if (hidden) hidden.value = id;
 
             const districtFieldArea = modal.querySelector('.field-area.district');
             const districtHidden = modal.querySelector('input[name="hidden_district"]');
@@ -262,6 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 districtFieldArea.style.display = 'block';
                 districtHidden.disabled = false;
+            }
+
+            if (e.target.classList.contains('address-item')) {
+                autocompleteFields(addressesKeeper[id]['details']);
             }
 
             const opened = e.target.closest('.opened');
@@ -280,10 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 requiredFields = [...requiredFields, emailField];
             }
 
-            const dataAssoc = modalData.reduce((obj, field) => {
-                obj[field[0]] = field[1];
-                return obj;
-            }, {});
+            const dataAssoc = arrayReducer(modalData);
 
             const requiredFieldAmount = dataAssoc.email === ''
                 ? requiredFields.length - 1
@@ -314,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = dataAssoc['password'];
             const confirmed = dataAssoc['confirm_password'];
             const isRegForm = formType === 'reg-form';
+            const isOrderForm = formType === 'order-confirm-form';
 
             // проверка на существование логина и его формат
             if (
@@ -355,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (validatedFields === requiredFieldAmount) {
-                if (isRegForm) {
+                if (isRegForm || isOrderForm) {
                     modalForm.submit();
                 } else {
                     const path = modalForm.getAttribute('action');
@@ -403,12 +406,273 @@ document.addEventListener('DOMContentLoaded', () => {
 
             entryForm.dataset.formType = formType;
         },
+        'my-feedback-rate': e => {
+            e.target.closest('.feedback-rate-wrapper').nextElementSibling.style.display = 'block';
+        },
+        'feedback-send-btn': e => {
+            e.preventDefault();
+            const thisForm = e.target.closest('#feedback-form');
+            const path = thisForm.getAttribute('action');
+            const productID = e.target.closest('.product-feedback-section').dataset.productId;
+            const formData = [...new FormData(thisForm)];
+            const assocDataArray = arrayReducer(formData);
+            assocDataArray.product_id = productID;
+
+            getRequestedData(path, assocDataArray).then(data => {
+                if (data.status === 'ok') {
+                    const parent = thisForm.parentElement;
+                    parent.innerHTML = '<span>Спасибо за Ваш отзыв</span>';
+                }
+            });
+        },
+        'profile-avatar': e => {
+            const inputImg = e.target.children[0];
+            const avatarImg = e.target.children[1];
+
+            inputImg.click();
+
+            const imgPreview = e => {
+                const [file] = e.target.files;
+
+                if (file) {
+                    avatarImg.src = URL.createObjectURL(file);
+                    inputImg.removeEventListener('change', imgPreview);
+                }
+            }
+
+            inputImg.addEventListener('change', imgPreview);
+        },
+        'controls-btn': e => {
+            const property = e.target.dataset.property;
+            const parent = e.target.parentElement;
+            const grandParent = e.target.closest('.info-text-div');
+            const children = Array.from(parent.children);
+
+            const hideAndSeek = () => {
+                children.forEach(btn => btn.classList.toggle('visible-controls'));
+                parent.classList.toggle('not-opacity');
+                [grandParent.children[1], grandParent.children[2]].forEach(item => item.classList.toggle('visible-controls'));
+            };
+
+            const controlsObj = {
+                'pencil': () => {
+                    hideAndSeek();
+                    grandParent.children[1].value = grandParent.children[2].innerText;
+                    phoneMask();
+                },
+                'tick-edit': () => {
+                    const hiddenEditor = grandParent.children[1];
+                    hiddenEditor.nextElementSibling.innerText = hiddenEditor.value;
+                    hideAndSeek();
+                },
+                'cross-edit': () => {
+                    hideAndSeek();
+                    grandParent.children[1].value = '';
+                }
+            };
+
+            controlsObj[property]();
+        },
+        'modal-save-btn': e => {
+            const mainParent = e.target.closest('.data-container');
+            const profileForm = mainParent.querySelector('#user-profile-form');
+            const formData = new FormData(profileForm);
+            const profileData = arrayReducer([...formData]);
+
+            const headerAvatars = body.querySelectorAll('header .user-avatar');
+            const newAvatarSrc = mainParent.querySelector('.avatar-img').src;
+
+            if (!headerAvatars[0]) {
+                const img = `<img class="user-avatar" src="${newAvatarSrc}" alt="">`;
+                entryBtns.forEach(btn => {
+                    try {
+                        btn.querySelector('div').remove();
+                    } catch (err) {}
+
+                    btn.insertAdjacentHTML('afterbegin', img);
+                });
+            } else {
+                headerAvatars.forEach(img => img.src = newAvatarSrc);
+            }
+
+            let fieldsGood = mainParent.querySelectorAll('.hidden-editor').length;
+            let validatedFields = 0;
+
+            if (profileData.email !== '' || profileData.phone !== '') {
+                let delay = 0;
+                const fieldsForCheck = Object.keys(profileData);
+
+                validatedFields = fieldsGood;
+
+                fieldsForCheck.forEach(field => {
+                    if (field === 'email_profile' && profileData[field] !== '' && !emailPattern.test(profileData[field])) {
+                        setTimeout(() => showNotification('error', 'Email не корректен'), delay);
+                        delay += 200;
+                        validatedFields--;
+                    } else if (field === 'phone_profile' && profileData[field] !== '' && profileData[field].indexOf('_') !== -1) {
+                        setTimeout(() => showNotification('error', 'Номер телефона введен не корректно'), delay);
+                        delay += 200;
+                        validatedFields--;
+                    }
+                });
+            }
+
+            if (validatedFields === fieldsGood || profileData.avatar_file.name !== '') {
+                const path = profileForm.getAttribute('action');
+                getRequestedData(path, formData, 'file').then(data => {
+                    if (data.status === 'ok') {
+                        showNotification('success', 'Изменения внесены');
+                        const crossEdits = mainParent.querySelectorAll('.tick-edit.visible-controls');
+                        crossEdits.forEach(cross => cross.click());
+                        const inputs = profileForm.querySelectorAll('.hidden-editor');
+                        inputs.forEach(input => input.value = '');
+                    }
+                });
+            }
+        },
+        'profile-tab': e => {
+            const parentSibling = e.target.closest('.tabs-block').nextElementSibling;
+            const containerBody = parentSibling.querySelectorAll('.container-body:not(.user-profile-info)');
+            const userProfile = parentSibling.querySelector('.user-profile-info');
+            userProfile.classList.add('hide-profile');
+            containerBody.forEach(body => body.remove());
+
+            const profileTabs = modal.querySelectorAll('.profile-tab');
+            profileTabs.forEach(tab => tab.classList.remove('active-tab'));
+            e.target.classList.add('active-tab');
+
+            const actions = {
+                'user-profile': () => userProfile.classList.remove('hide-profile'),
+                'user-orders': () => {
+                    const path = {
+                        path: '../../db/actions/SELECT/user_orders.php'
+                    };
+
+                    getData(path).then(data => {
+                        try {
+                            const orders = data[0];
+                            ordersStory = orders;
+
+                            let content = '';
+
+                            if (orders.length === undefined) {
+                                let totalCost = 0;
+                                let orderInCart = '0';
+
+                                const ordersCards = Object.keys(orders).map(order => {
+                                    const orderItem = orders[order];
+
+                                    const itemsRows = orderItem.items.map(item => {
+                                        const product = item[0];
+                                        const positionSumm = product.old_price * product.product_amount;
+
+                                        totalCost += positionSumm;
+
+                                        if (myCart.size > 0) {
+                                            const itemInCart = myCart.get(+product.id_product);
+                                            orderInCart = itemInCart.order_number;
+                                        }
+
+                                        return `<tr class="product-row" data-id-product="${product.id_product}">
+                                           <td>
+                                                <div>
+                                                    <span title="${product.product_name}">${product.product_name}</span> x ${product.product_amount}
+                                                </div>
+                                           </td>
+                                           <td>${product.old_price} ₽</td>
+                                           <td>${positionSumm} ₽</td>
+                                        </tr>`;
+                                    });
+
+                                    return `<div class="order-item" data-order-number="${order}">
+                                        <div class="order-header">
+                                            <span>Заказ №${order}</span>
+                                            ${order !== orderInCart ? '<button class="order-repeat-btn" type="button"></button>' : ''}
+                                        </div>
+                                        <div class="order-details-wrapper">
+                                            <div class="order-details">
+                                                <table class="order-table">
+                                                    <tr>
+                                                        <th>Наименование</th>
+                                                        <th>Цена</th>
+                                                        <th>Сумма</th>
+                                                    </tr>
+                                                    ${itemsRows.join('')}
+                                                    <tr>
+                                                        <td>Итого:</td>
+                                                        <td></td>
+                                                        <td>${totalCost} ₽</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                                });
+
+                                content = ordersCards.join('');
+                            } else {
+                                content = '<span>История пуста</span>';
+                            }
+
+                            const containerBody = `<div class="container-body user-orders-container">${content}</div>`;
+
+                            const saveBlock = parentSibling.querySelector('.modal-save-btn-block');
+                            saveBlock.insertAdjacentHTML('beforebegin', containerBody);
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    });
+                },
+                'quit-account': () => {
+                    const path = {
+                        path: '../../db/actions/quit.php',
+                    };
+
+                    getData(path).then(data => {
+                        if (data[0].status === 'ok') {
+                            location.reload();
+                        }
+                    });
+                }
+            };
+
+            const id = e.target.getAttribute('id');
+            actions[id]();
+        },
+        'order-header': e => {
+            const orderDetailsWrapper = e.target.nextElementSibling;
+            const orderDetails = orderDetailsWrapper.querySelector('.order-details');
+            const parent = e.target.parentElement;
+
+            if (!parent.classList.contains('showed-details')) {
+                const detailsHeight = orderDetails.getBoundingClientRect().height;
+                orderDetailsWrapper.style.height = `${detailsHeight}px`;
+                parent.classList.add('showed-details');
+            } else {
+                orderDetailsWrapper.style.height = '0';
+                parent.classList.remove('showed-details');
+            }
+        },
+        'order-repeat-btn': e => {
+            const grandParent = e.target.closest('.order-item');
+            const orderNumber = grandParent.dataset.orderNumber;
+
+            ordersStory[orderNumber].items.forEach(item => {
+                const id = +item[0].id_product;
+                myCart.set(id, {...item[0], order_number: orderNumber});
+                save(myCart);
+                addToCartBtnsToggler(id);
+            });
+
+            cartItemsAmount.forEach(amount => amount.innerText = myCart.size);
+            e.target.remove();
+        }
     }
 
     // функции выполняемые при вводе
     const inputActions = {
         'count-field': e => calculation(e, myCart), // ввод в поле увеличения/уменьшения числа товара внутри одной позиции
-        'client-comment': e => {
+        'client-textarea': e => {
             e.target.style.height = 'auto';
             e.target.style.height = `${e.target.scrollHeight + 1.33}px`;
         },  // ввод в поле комментария
@@ -442,14 +706,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const addressesList = modal.querySelector('.my-addresses-list');
             if (e.target.checked) {
                 shipping.click();
-                modal.querySelector(`.city-item[data-id="${addressesKeeper[0][1][1]}"]`).click();
+                modal.querySelector(`.city-item[data-id="${addressesKeeper[0]['details'][1][1]}"]`).click();
                 togglerShipping.classList.add('disabled');
                 addressesList.classList.remove('hide');
-                autocompleteFields(addressesKeeper[0]);
+                autocompleteFields(addressesKeeper[0]['details']);
             } else {
                   togglerShipping.classList.remove('disabled');
                   addressesList.classList.add('hide');
-                  autocompleteFieldsClear(standartAddress);modal.querySelector(`.city-item[data-id="1"]`).click();
+                  autocompleteFieldsClear(standartAddress);
+                  modal.querySelector(`.city-item[data-id="1"]`).click();
             }
         },
         'bonus-radio': e => {
@@ -460,18 +725,25 @@ document.addEventListener('DOMContentLoaded', () => {
             preparedBonusInput = bonusInputs[property];
 
             parent.insertAdjacentElement('afterend', preparedBonusInput);
+            clearPromocodeResult(myCart);
 
             if (property === 'promocode_radio') {
+                const inputField = preparedBonusInput.children[1];
+                inputField.value = '';
+                inputField.focus();
+                inputField.blur();
                 updateSumm(totalCost);
                 setFocusEffect(modal);
             } else {
                 const range = bonusInputs.points_radio;
-                const currentPointsKeeper = modal.querySelector('#points-current-value');
-                updateSumm(totalCost - currentPointsKeeper.innerText);
+                const currentPointsKeeper = modal.querySelectorAll('.points-current-value');
+                updateSumm(totalCost - currentPointsKeeper[0].innerText);
+
+                const pointsRecord = points => currentPointsKeeper.forEach((keeper, index) => index === 0 ? keeper.innerText = points : keeper.value = points);
 
                 const usePoints = rangeIndex => {
                     const points = +rangeIndex.join('')
-                    currentPointsKeeper.innerText = points;
+                    pointsRecord(points);
                     updateSumm(totalCost - points);
                 }
 
@@ -480,12 +752,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     label.addEventListener('click', e => {
                         const value = e.target.innerText;
                         range.noUiSlider.set(value);
-                        currentPointsKeeper.innerText = value;
+                        pointsRecord(value);
                         updateSumm(totalCost - value);
                     });
                 });
 
                 rangeInput(range, maxPoints, usePoints);
+            }
+        },
+        'promocode-input': e => {
+            const promocode = e.target.value.trim();
+
+            if (promocode !== '' && promocode !== ' ') {
+                const path = '../../db/actions/SELECT/check_promocode.php';
+                getRequestedData(path, { promocode }).then(data => {
+                    const statuses = {
+                        used: () => showNotification('error', 'Вы уже использовали этот промокод'),
+                        promocode_error: () => showNotification('error', 'Либо такого промокода не существует, либо он вне срока действия'),
+                        ok: () => {
+                            try {
+                                const participatingItemBlock = modal.querySelector(`.cart-item[data-product-id="${data.id_product}"]`);
+                                const newFullCartCost = costWithPromo(myCart, data.id_product, participatingItemBlock, data.discount);
+
+                                updateSumm(newFullCartCost);
+                                showNotification('success', 'Сумма заказа скорректирована относительно введенного промокода');
+                            } catch (err) {
+                                showNotification('error', 'У Вас нет товара, на который распространяется введенный промокод');
+                            }
+                        }
+                    };
+
+                    statuses[data.status]();
+                });
+            } else {
+                clearPromocodeResult(myCart);
+                updateSumm(totalCost);
             }
         },
     };
@@ -595,7 +896,6 @@ document.addEventListener('DOMContentLoaded', () => {
             body.style.overflow = 'hidden';
 
             if (myCart.size !== 0) {
-                modalClass = 'align-start';
                 maxWidth = 'modal-block-cart';
 
                 modalBody = cartModal(myCart, tokens['token-cart-modal']);
@@ -613,13 +913,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } else {
-                modalClass = 'align-center';
                 maxWidth = 'modal-block-empty';
-
                 modalBody = emptyCart();
             }
 
-            defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+            defineModal(modal, modalBlock, maxWidth, modalBody);
 
             labelsChange();
 
@@ -717,26 +1015,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showcase.insertAdjacentHTML('beforeend', searchResult);
         });
-    })
+    });
 
     // модальное окно авторизации/регистрации
-    const entryBtns = body.querySelectorAll('.enbt');
     entryBtns.forEach(entryBtn => {
         entryBtn.addEventListener('click', e => {
             if (!e.target.classList.contains('auth_user')) {
                 const modalBody = entryModal(actions.auth, tokens['token-auth-user-modal']);
-                modalClass = 'align-center';
                 maxWidth = 'modal-block-entry';
-                body.style.overflow = 'hidden';
 
-                defineModal(modal, modalClass, modalBlock, maxWidth, modalBody);
+                defineModal(modal, modalBlock, maxWidth, modalBody);
                 setFocusEffect(modal);
             } else {
-                modalClass = 'align-center';
-                maxWidth = 'modal-block-entry';
-                const tools = [defineModal, modal, modalClass, modalBlock, maxWidth];
+                maxWidth = 'modal-block-LK';
+                const tools = [defineModal, modal, modalBlock, maxWidth];
                 userProfileModal(tokens['token-user-profile-modal'], tools);
             }
+
+            body.style.overflow = 'hidden';
         });
     });
 

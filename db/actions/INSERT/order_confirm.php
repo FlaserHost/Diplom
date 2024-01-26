@@ -29,7 +29,7 @@
 
             if ($completePOST) {
                 $orderData = $_POST;
-                $itemsIDs = explode(',', $orderData['itemsIDs']); // получение списка идентификаторов товаров
+                $itemsIDs = explode(';', $orderData['itemsIDs']); // получение списка идентификаторов товаров
                 $shippingDateTime = explode(' ', $orderData['order_date']); // разбиение значения дата/время
 
                 $_SESSION['cartID'] = random_token();
@@ -37,7 +37,7 @@
 
                 $mysqli->begin_transaction();
                 try {
-                    $userID = isset($_SESSION['auth_user_token']) ?: null; // если пользователь авторизоваан, то использовать его токен, если нет, то null
+                    $userID = $_SESSION['auth_user_token'] ?: null; // если пользователь авторизован, то использовать его токен, если нет, то null
 
                     // получение максимального значения для определения номера заказа
                     $requestMaxValue = "SELECT MAX(id_row) as max_value FROM order_full"; // SQL запрос
@@ -45,14 +45,17 @@
                     $maxValue = $getMaxValue->fetch_assoc(); // получение результата выполнения запроса
                     $maxValue = $maxValue['max_value'] !== null ? ++$maxValue['max_value'] : 1; // если был хотя бы один заказ, то увеличить полученное значение на 1, иначе взять цифру 1 за номер заказа
                     $districtID = $orderData['hidden_district'] ?? null;
+                    $promocode = $orderData['promocode'] ?? null;
+                    $points_spent = $orderData['points_spent'] ?? null;
+                    $points_rewarded = $orderData['points_rewarded'] ?? null;
 
                     // внесение данных по заказу в таблицу order_full
-                    $query = "INSERT INTO order_full VALUES (NULL, LPAD('$maxValue', 7, '0'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"; // SQL запрос
+                    $query = "INSERT INTO order_full VALUES (NULL, LPAD('$maxValue', 7, '0'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"; // SQL запрос
 
                     // проверяем факт подготовки запроса и успех
                     if ($stmt = $mysqli->prepare($query)) {
                         $stmt->bind_param(
-                            'sssssiissiisssiis', // s - string, i - integer
+                            'sssssiissiiisssiisiis', // s - string, i - integer
                             $cartID,
                             $userID,
                             $orderData['firstname'],
@@ -63,12 +66,16 @@
                             $orderData['street'],
                             $orderData['house_number'],
                             $orderData['entrance'],
+                            $orderData['floor'],
                             $orderData['flat'],
                             $shippingDateTime[0],
                             $shippingDateTime[1],
                             $orderData['comment'],
                             $orderData['client_agreed'],
                             $orderData['final_cart_cost'],
+                            $promocode,
+                            $points_spent,
+                            $points_rewarded,
                             $orderData['shipping_type']
                         ); // привязка параметров
 
@@ -82,12 +89,14 @@
                     }
 
                     // заполняем таблицу tmp_order (хранилище идентификаторов корзин)
-                    $fillCartRequest = "INSERT INTO tmp_order VALUES (NULL, ?, ?, ?)";
+                    $fillCartRequest = "INSERT INTO tmp_order VALUES (NULL, ?, ?, ?, ?, ?)";
 
                     // проверяем факт подготовки и успех
                     if ($fillStmt = $mysqli->prepare($fillCartRequest)) {
                         foreach ($itemsIDs as $itemID) {
-                            $fillStmt->bind_param('ssi', $cartID, $userID, $itemID);
+                            $dataParse = explode(',', $itemID);
+
+                            $fillStmt->bind_param('ssiii', $cartID, $userID, $dataParse[0], $dataParse[1], $dataParse[2]);
 
                             if (!$fillStmt->execute()) {
                                 throw new Exception("Ошибка выполнения запроса: $fillStmt->error");
@@ -95,6 +104,26 @@
                         }
 
                         $fillStmt->close();
+                    }
+
+                    // обновление остатка баллов
+                    if ($userID !== null) {
+                        $pointsUPDrequest = "UPDATE users SET points_remaining = ? WHERE id_user = ?";
+                        if ($UPDstmt = $mysqli->prepare($pointsUPDrequest)) {
+
+                            $newPointsValue = $orderData['points_remaining'] - $points_spent + $points_rewarded;
+
+                            $UPDstmt->bind_param('is', $newPointsValue, $userID);
+
+                            if (!$UPDstmt->execute()) {
+                                throw new Exception("Ошибка выполнения обновления: $UPDstmt->error");
+                            }
+
+                            $_SESSION['auth_user']['points'] = $newPointsValue;
+                            $UPDstmt->close();
+                        } else {
+                            throw new Exception("Ошибка подготовки обновления: $UPDstmt->error");
+                        }
                     }
 
                     $mysqli->commit();

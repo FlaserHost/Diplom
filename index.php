@@ -1,6 +1,5 @@
 <?php
     session_start();
-    /*unset($_SESSION['auth_user']);*/
     require_once 'db/access/access.php';
     require_once 'db/functions.php';
 
@@ -59,10 +58,12 @@
     $entryBtnTitle = 'Войти';
     $entryBtnSex = '';
     $sex = '';
+    $avatar = '';
 
     if ($auth_user) {
         $entryBtnTitle = $_SESSION['auth_user']['login'];
         $sex = $_SESSION['auth_user']['sex'];
+        $avatar = $_SESSION['auth_user']['avatar'];
         $entryBtnSex = 'auth_user';
     }
 ?>
@@ -98,9 +99,10 @@
     <?php unset($_SESSION['register_complete']) ?>
     <?php endif ?>
     <script>
+        let userCurrentPoints;
         <?php if ($auth_user): ?>
             localStorage.auth_user_token = '<?= $_SESSION['auth_user']['token'] ?>';
-            const userCurrentPoints = <?= $_SESSION['auth_user']['points'] ?>;
+            userCurrentPoints = <?= $_SESSION['auth_user']['points'] ?>;
         <?php else: ?>
             localStorage.removeItem('auth_user_token');
         <?php endif ?>
@@ -155,7 +157,11 @@
             </div>
             <div class="entry-btn-wrapper">
                 <button class="enbt entry-btn <?= $entryBtnSex ?>" type="button">
-                    <div class="entry-btn-img <?= $sex ?>"></div>
+                    <?php if ($avatar === '' || $avatar === null): ?>
+                        <div class="entry-btn-img <?= $sex ?>"></div>
+                    <?php else: ?>
+                        <img class="user-avatar" src="<?= $avatar ?>" alt="avatar">
+                    <?php endif ?>
                     <?= $entryBtnTitle ?>
                 </button>
             </div>
@@ -171,6 +177,9 @@
                     <span class="cart-items-amount">0</span>
                 </button>
                 <button class="enbt mobile-entry-btn <?= "$entryBtnSex $sex" ?>" type="button">
+                    <?php if ($avatar !== '' && $avatar !== null): ?>
+                        <img class="user-avatar" src="<?= $avatar ?>" alt="avatar">
+                    <?php endif ?>
                     <span class="mobile-entry-btn-title"><?= $entryBtnTitle ?></span>
                 </button>
             </div>

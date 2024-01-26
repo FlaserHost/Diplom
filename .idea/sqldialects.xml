@@ -3,13 +3,17 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/db/actions/INSERT/order_confirm.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/INSERT/reg.php" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/db/actions/INSERT/send_feedback.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/SELECT/auth.php" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/db/actions/SELECT/check_promocode.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/SELECT/get_cities.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/SELECT/get_districts.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/SELECT/get_my_addresses.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/SELECT/get_product_info.php" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/db/actions/SELECT/i_have_this_feedback.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/SELECT/login_check.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/db/actions/SELECT/user_info.php" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/db/actions/SELECT/user_orders.php" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/index.php" dialect="GenericSQL" />
   </component>
 </project>

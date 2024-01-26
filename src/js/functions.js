@@ -12,18 +12,24 @@ const visibilityToggler = id => {
     interactiveItems.forEach(item => item.classList.toggle('show'));
 }
 
+const addToCartBtnsToggler = id => {
+    const itemArticle = document.getElementById(`product-${id}`);
+    itemArticle.querySelector('.add-to-cart-btn').classList.remove('show');
+    itemArticle.querySelector('.added-notice').classList.add('show');
+}
+
 const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
     const currentParent = e.target.closest('.current-card');
     const children = [...currentParent.children];
 
-    const product_id = +currentParent.dataset.productId;
+    const id_product = +currentParent.dataset.productId;
     const product_name = children[1].querySelector('h3').innerText;
     const product_composition = children[1].querySelector('p').innerText;
     const product_price = +children[1].querySelector('.product-price').dataset.price;
     const product_photo = children[0].getAttribute('href');
 
     const info = {
-        product_id,
+        id_product,
         product_name,
         product_composition,
         product_price,
@@ -32,7 +38,7 @@ const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
         product_photo
     };
 
-    myCart.set(info.product_id, info);
+    myCart.set(info.id_product, info);
     save(myCart);
 
     e.target.classList.remove('show');
@@ -45,7 +51,7 @@ const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
     setTimeout(() => impulse.remove(), 900);
 
     if (e.target.classList.contains('found-btn')) {
-        visibilityToggler(product_id);
+        visibilityToggler(id_product);
     }
 }
 
@@ -54,8 +60,9 @@ const total = array => array.reduce((sum, item) => sum + item.product_cost, 0);
 
 let totalCost = 0;
 let pointsRewardedText = '';
+
 const userGetPoints = () => {
-    const pointsLabel = modal.querySelector('.points-rewarded');
+    const pointsLabel = modal.querySelector('.pr');
     pointsLabel && pointsLabel.remove();
 
     const pointsCoefficient = Math.floor(totalCost / 1000);
@@ -63,7 +70,11 @@ const userGetPoints = () => {
     if (pointsCoefficient > 0) {
         const totalCostLabel = modal.querySelector('.cart-total-cost-wrapper');
         const pointsRewarded = 80 * pointsCoefficient;
-        pointsRewardedText = `<span class="points-rewarded">Вам будет начислено ${pointsRewarded} баллов</span>`;
+        pointsRewardedText = `<div class="pr">
+                                <span class="points-rewarded">Вам будет начислено ${pointsRewarded} баллов</span>
+                                <input name="points_rewarded" type="hidden" value="${pointsRewarded}">
+                              </div>`;
+
         totalCostLabel.insertAdjacentHTML('beforeend', pointsRewardedText);
     }
 }
@@ -78,10 +89,26 @@ const updateSumm = newValue => {
 }
 
 // Калькуляция
+const costWithPromo = (myCart, itemId, container, discount) => {
+    const costLabel = container.querySelector('.cost');
+    const item = myCart.get(itemId);
+    const discountSumm = item.product_amount * discount;
+    const cartCost = total(Array.from(myCart.values()));
+
+    costLabel.innerHTML = `${item.product_cost - discountSumm} ₽ <span class="old-cost" data-discount="${discount}">${item.product_cost} ₽</span>`;
+    return cartCost - discountSumm;
+}
+
+const interactiveItemsIDs = myCart => {
+    const inputIDs = modal.querySelector('input[name="itemsIDs"]');
+    inputIDs.value = itemsInTheCart(myCart);
+}
+
 const calculation = (e, myCart) => {
     const isCounterBtns = e.target.classList.contains('count-btn');
 
     const thisParent = e.target.parentElement;
+    const sibling = thisParent.nextElementSibling;
     const currentID = +thisParent.dataset.productId;
 
     const product = myCart.get(currentID);
@@ -107,26 +134,27 @@ const calculation = (e, myCart) => {
     myCart.set(currentID, {...product, product_amount: amount, product_cost: newCost});
     save(myCart);
 
+    interactiveItemsIDs(myCart);
+
     const countField = thisParent.querySelector('.count-field');
-    const cost = thisParent.nextElementSibling.querySelector('.cost');
-    const totalCosts = document.querySelectorAll('.cart-total-cost');
-    const finalTotalCost = document.getElementById('final-total-cost');
-
+    const cost = sibling.querySelector('.cost');
     const allItems = Array.from(myCart.values());
+
     totalCost = total(allItems);
-
     countField.value = amount;
-    cost.innerText = `${newCost} ₽`;
 
-    totalCosts.forEach((item, index) => {
-        const title = index === 0 ? 'Сумма' : 'Итого';
-        item.innerText = `${title}: ${totalCost} ₽`;
-    });
+    const acceptPromocode = cost.querySelector('.old-cost');
 
-    finalTotalCost.value = totalCost;
+    if (!acceptPromocode) {
+        cost.innerText = `${newCost} ₽`;
+        updateSumm(totalCost);
+    } else {
+        const discount = acceptPromocode.dataset.discount;
+        const fullCostWithPromo = costWithPromo(myCart, currentID, sibling, discount);
+        updateSumm(fullCostWithPromo);
+    }
 
-    userGetPoints();
-
+    localStorage.auth_user_token && userGetPoints();
 }
 
 const correctEnding = (item, amount) => {
@@ -225,14 +253,20 @@ const getData = async paths => {
     }
 };
 
-const getRequestedData = async (path, obj) => {
+const getRequestedData = async (path, obj, file = '') => {
     try {
+        const fetchBody = file !== 'file'
+            ? JSON.stringify({...obj})
+            : obj;
+
         const response = await fetch(path, {
            method: 'POST',
-           body: JSON.stringify({...obj})
+           body: fetchBody
         });
 
-        return await response.json();
+        if (response.ok) {
+            return await response.json();
+        }
     } catch (err) {
         console.error(`Ошибка: ${err}`);
     }
@@ -253,13 +287,13 @@ const showNotification = (type, text) => {
 }
 
 const itemsInTheCart = myCart => {
-    const itemsArray = Array.from(myCart.values()).map(item => item.product_id);
-    return itemsArray.join(',');
+    const itemsArray = Array.from(myCart.values()).map(item => `${item.id_product},${item.product_amount},${item.product_price}`);
+    return itemsArray.join(';');
 }
 
-const defineModal = (modal, modalClass, modalBlock, maxWidth, modalBody) => {
-    modal.className = `modal flex ${modalClass}`;
-    modalBlock.className = `modal-block ${maxWidth}`;
+const defineModal = (modal, modalBlock, maxWidth, modalBody) => {
+    modal.className = `modal flex`;
+    modalBlock.className = `modal-block margin ${maxWidth}`;
     modalBlock.insertAdjacentHTML('beforeend', modalBody);
 }
 
@@ -283,8 +317,9 @@ const autocompleteFields = preparedAddress => {
                 field.querySelector('.selected-drop').innerText = preparedAddress[index + 1][0];
                 input.value = preparedAddress[index + 1][1];
             } else {
+                field.classList.remove('focused');
                 input.value = preparedAddress[index + 1] || '';
-                field.classList.add('focused');
+                input.value !== '' && field.classList.add('focused');
             }
         });
     } catch (err) {
@@ -317,12 +352,13 @@ const createBonusInput = (elem, className, attr, attrValue) => {
         input.innerHTML = `<div class="label-keeper">
                                 <label class="modal-label" for="promocode-input">Введите промокод</label>
                            </div>
-                           <input class="modal-field promocode-input" id="promocode-input" name="promocode-input" type="text">`;
+                           <input class="modal-field promocode-input" id="promocode-input" name="promocode" type="text">`;
     } else {
         input.innerHTML = `<span class="points-static-value points-min">0</span>
-                           <span class="points-static-value points-half">750</span>
-                           <span class="points-static-value points-max">1500</span>
-                           <span class="points-static-value points-current-value" id="points-current-value">0</span>`;
+                           <span class="points-static-value points-half">0</span>
+                           <span class="points-static-value points-max">0</span>
+                           <span class="points-static-value points-current-value">0</span>
+                           <input class="points-current-value" name="points_spent" type="hidden" value="0">`;
     }
 
     return input;
@@ -355,3 +391,16 @@ const rangeInput = (range, max, rangeEvents) => {
         return false;
     }
 }
+
+const clearPromocodeResult = myCart => {
+    modal.querySelectorAll('.old-cost').forEach(cost => {
+        const itemId = +cost.closest('.cart-item').dataset.productId;
+        const thisItem = myCart.get(itemId);
+        cost.parentElement.innerHTML = `${thisItem.product_cost} ₽`;
+    });
+};
+
+const arrayReducer = array => array.reduce((obj, field) => {
+   obj[field[0]] = field[1];
+   return obj;
+}, {});

@@ -1,0 +1,41 @@
+.slider-styled,
+.slider-styled .noUi-handle {
+    box-shadow: none;
+}
+
+.slider-styled .noUi-handle::before,
+.slider-styled .noUi-handle::after {
+    display: none;
+}
+
+.slider-round {
+    width: 200px;
+    height: 10px;
+    position: relative;
+}
+
+.slider-round .noUi-handle {
+    height: 18px;
+    width: 18px;
+    top: -5px;
+    right: -9px;
+    border-radius: 50%;
+}
+
+.noUi-horizontal .noUi-origin {
+    background-color: var(--main-color);
+}
+
+.slider-round,
+.noUi-handle.noUi-handle-lower {
+    cursor: pointer;
+}
+
+.noUi-handle.noUi-handle-lower {
+    background-color: var(--main-color);
+    border: 1px solid var(--main-color);
+}
+
+.slider-round .noUi-connect {
+    background-color: var(--main-color);
+}

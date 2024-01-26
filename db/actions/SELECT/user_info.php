@@ -21,7 +21,7 @@
 
                 $userID = $_SESSION['auth_user']['token'];
 
-                $infoRequest = "SELECT login, firstname, sx.sex as sex, phone, email, avatar FROM users
+                $infoRequest = "SELECT login, firstname, users.id_sex, users.points_remaining, sx.sex as sex, phone, email, avatar FROM users
                             JOIN sex as sx ON users.id_sex = sx.id_sex
                             WHERE id_user = ?";
 
@@ -42,6 +42,8 @@
                             'sex' => $info['sex'],
                             'phone' => $info['phone'],
                             'email' => $info['email'],
+                            'id_sex' => $info['id_sex'],
+                            'points_remaining' => $info['points_remaining'],
                             'avatar' => $info['avatar']
                         ];
 
