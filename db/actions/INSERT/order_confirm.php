@@ -89,14 +89,14 @@
                     }
 
                     // заполняем таблицу tmp_order (хранилище идентификаторов корзин)
-                    $fillCartRequest = "INSERT INTO tmp_order VALUES (NULL, ?, ?, ?, ?, ?)";
+                    $fillCartRequest = "INSERT INTO tmp_order VALUES (NULL, ?, ?, ?, ?, ?, ?)";
 
                     // проверяем факт подготовки и успех
                     if ($fillStmt = $mysqli->prepare($fillCartRequest)) {
                         foreach ($itemsIDs as $itemID) {
                             $dataParse = explode(',', $itemID);
 
-                            $fillStmt->bind_param('ssiii', $cartID, $userID, $dataParse[0], $dataParse[1], $dataParse[2]);
+                            $fillStmt->bind_param('ssiiii', $cartID, $userID, $dataParse[0], $dataParse[1], $dataParse[2], $dataParse[3]);
 
                             if (!$fillStmt->execute()) {
                                 throw new Exception("Ошибка выполнения запроса: $fillStmt->error");
@@ -123,6 +123,18 @@
                             $UPDstmt->close();
                         } else {
                             throw new Exception("Ошибка подготовки обновления: $UPDstmt->error");
+                        }
+
+                        if ($promocode !== null) {
+                            $getPromocodeID = "INSERT INTO used_promocodes VALUES (NULL, (SELECT id_promocode FROM promocodes WHERE promocode = ?), '$userID') ";
+
+                            if ($promo_stmt = $mysqli->prepare($getPromocodeID)) {
+                                $promo_stmt->bind_param('s', $promocode);
+
+                                if (!$promo_stmt->execute()) {
+                                    die;
+                                }
+                            }
                         }
                     }
 

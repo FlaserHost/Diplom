@@ -30,11 +30,13 @@ const addToCartProcess = (e, myCart, cartItemsAmount, cartBtnWrapper) => {
 
     const info = {
         id_product,
+        order_number: '',
         product_name,
         product_composition,
         product_price,
         product_amount: 1,
         product_cost: product_price,
+        price_with_discount: null,
         product_photo
     };
 
@@ -93,9 +95,16 @@ const costWithPromo = (myCart, itemId, container, discount) => {
     const costLabel = container.querySelector('.cost');
     const item = myCart.get(itemId);
     const discountSumm = item.product_amount * discount;
+
     const cartCost = total(Array.from(myCart.values()));
 
     costLabel.innerHTML = `${item.product_cost - discountSumm} ₽ <span class="old-cost" data-discount="${discount}">${item.product_cost} ₽</span>`;
+
+    const totalProductCost = item.product_price - discount;
+    myCart.set(itemId, {...item, price_with_discount: totalProductCost});
+
+    interactiveItemsIDs(myCart);
+
     return cartCost - discountSumm;
 }
 
@@ -287,7 +296,7 @@ const showNotification = (type, text) => {
 }
 
 const itemsInTheCart = myCart => {
-    const itemsArray = Array.from(myCart.values()).map(item => `${item.id_product},${item.product_amount},${item.product_price}`);
+    const itemsArray = Array.from(myCart.values()).map(item => `${item.id_product},${item.product_amount},${item.product_price},${item.price_with_discount}`);
     return itemsArray.join(';');
 }
 

@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const cartItemsAmount = body.querySelectorAll('.cart-items-amount');
     const hiddenTokens = body.querySelectorAll('.token');
-    const myCart = new Map();
+    let myCart = new Map();
 
     const tokens = Array.from(hiddenTokens).reduce((obj, item) => {
         const id = item.getAttribute('id');
@@ -532,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         'profile-tab': e => {
             const parentSibling = e.target.closest('.tabs-block').nextElementSibling;
+            const btnBlock = parentSibling.querySelector('.modal-save-btn-block');
             const containerBody = parentSibling.querySelectorAll('.container-body:not(.user-profile-info)');
             const userProfile = parentSibling.querySelector('.user-profile-info');
             userProfile.classList.add('hide-profile');
@@ -542,11 +543,16 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.classList.add('active-tab');
 
             const actions = {
-                'user-profile': () => userProfile.classList.remove('hide-profile'),
+                'user-profile': () => {
+                    userProfile.classList.remove('hide-profile')
+                    btnBlock.classList.remove('hide-btn');
+                },
                 'user-orders': () => {
                     const path = {
                         path: '../../db/actions/SELECT/user_orders.php'
                     };
+
+                    btnBlock.classList.add('hide-btn');
 
                     getData(path).then(data => {
                         try {
@@ -556,7 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             let content = '';
 
                             if (orders.length === undefined) {
-                                let totalCost = 0;
                                 let orderInCart = '0';
 
                                 const ordersCards = Object.keys(orders).map(order => {
@@ -564,13 +569,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                     const itemsRows = orderItem.items.map(item => {
                                         const product = item[0];
-                                        const positionSumm = product.old_price * product.product_amount;
 
-                                        totalCost += positionSumm;
+                                        const positionSumm = (+product.price_with_discount !== 0 ? product.price_with_discount : product.old_price) * product.product_amount;
 
                                         if (myCart.size > 0) {
-                                            const itemInCart = myCart.get(+product.id_product);
-                                            orderInCart = itemInCart.order_number;
+                                            const itemInCart = myCart.get(product.id_product);
+
+                                            if (itemInCart) {
+                                                orderInCart = itemInCart.order_number;
+                                            }
                                         }
 
                                         return `<tr class="product-row" data-id-product="${product.id_product}">
@@ -584,10 +591,35 @@ document.addEventListener('DOMContentLoaded', () => {
                                         </tr>`;
                                     });
 
+                                    const inCartAlready = order !== orderInCart ? '' : 'hide-btn';
+                                    const fullCost = +orderItem.order_cost + +orderItem.points_spent;
+
+                                    let pointsRows = '';
+                                    let usedPromocodeRow = '';
+
+                                    if (orderItem.points_spent !== null && +orderItem.points_spent !== 0) {
+                                        pointsRows = `<tr>
+                                                        <td>Потрачено баллов:</td>
+                                                        <td></td>
+                                                        <td>${orderItem.points_spent}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Итого с учетом баллов:</td>
+                                                        <td></td>
+                                                        <td>${orderItem.order_cost} ₽</td>
+                                                    </tr>`;
+                                    } else if (orderItem.promocode !== null) {
+                                        usedPromocodeRow = `<tr>
+                                            <td>Использован промокод:</td>
+                                            <td></td>
+                                            <td>${orderItem.promocode.toUpperCase()}</td>
+                                        </tr>`;
+                                    }
+
                                     return `<div class="order-item" data-order-number="${order}">
                                         <div class="order-header">
                                             <span>Заказ №${order}</span>
-                                            ${order !== orderInCart ? '<button class="order-repeat-btn" type="button"></button>' : ''}
+                                            <button class="order-repeat-btn ${inCartAlready}" type="button"></button>
                                         </div>
                                         <div class="order-details-wrapper">
                                             <div class="order-details">
@@ -598,11 +630,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                                         <th>Сумма</th>
                                                     </tr>
                                                     ${itemsRows.join('')}
-                                                    <tr>
+                                                    <tr class="last-table-sector">
                                                         <td>Итого:</td>
                                                         <td></td>
-                                                        <td>${totalCost} ₽</td>
+                                                        <td>${fullCost} ₽</td>
                                                     </tr>
+                                                    ${pointsRows}
+                                                    ${usedPromocodeRow}
                                                 </table>
                                             </div>
                                         </div>
@@ -622,6 +656,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.error(err);
                         }
                     });
+                },
+                'user-addresses': () => {
+                    btnBlock.classList.remove('hide-btn');
                 },
                 'quit-account': () => {
                     const path = {
@@ -657,6 +694,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const grandParent = e.target.closest('.order-item');
             const orderNumber = grandParent.dataset.orderNumber;
 
+            const currentItems = Array.from(myCart.values());
+            currentItems.forEach(item => visibilityToggler(item.id_product));
+
+            myCart = new Map();
             ordersStory[orderNumber].items.forEach(item => {
                 const id = +item[0].id_product;
                 myCart.set(id, {...item[0], order_number: orderNumber});
@@ -664,8 +705,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 addToCartBtnsToggler(id);
             });
 
+            console.log(myCart.values());
+
             cartItemsAmount.forEach(amount => amount.innerText = myCart.size);
-            e.target.remove();
+
+            const repeatBtns = e.target.closest('.container-body').querySelectorAll('.order-repeat-btn');
+            repeatBtns.forEach(btn => btn.classList.remove('hide-btn'));
+            e.target.classList.add('hide-btn');
+            showNotification('success', 'Заказ возобновлен в корзине');
         }
     }
 
@@ -767,7 +814,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const path = '../../db/actions/SELECT/check_promocode.php';
                 getRequestedData(path, { promocode }).then(data => {
                     const statuses = {
-                        used: () => showNotification('error', 'Вы уже использовали этот промокод'),
+                        used: () => {
+                            showNotification('error', 'Вы уже использовали этот промокод');
+                            e.target.value = '';
+                            e.target.focus();
+                            e.target.blur();
+                        },
                         promocode_error: () => showNotification('error', 'Либо такого промокода не существует, либо он вне срока действия'),
                         ok: () => {
                             try {
@@ -887,7 +939,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalBlock = body.querySelector('.modal-block');
     let modalBody;
     let maxWidth;
-    let modalClass;
 
     const cartBtns = body.querySelectorAll('.cabt');
     cartBtns.forEach(cartBtn => {

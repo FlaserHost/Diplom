@@ -1959,7 +1959,7 @@ label[for="burger-box"],
     border-collapse: collapse;
 }
 
-.order-details .order-table tr:last-child {
+.order-details .order-table tr.last-table-sector {
     border-top: 1px solid #000;
 }
 
